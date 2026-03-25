@@ -1,154 +1,169 @@
 import com.formdev.flatlaf.themes.FlatMacDarkLaf
-import java.awt.Color
 import java.awt.Font
 import javax.swing.*
 
-/**
- * Application entry point
- */
-fun main() {
-    FlatMacDarkLaf.setup()          // Initialise the LAF
-
-    val app = App()                 // Get an app state object
-    val window = MainWindow(app)    // Spawn the UI, passing in the app state
-
-    SwingUtilities.invokeLater { window.show() }
-}
-
-
-/**
- * Manage app state
- *
- * @property name the user's name
- * @property score the points earned
- */
-class App {
-    var currentRoom = 1
-
-
-    fun moveRoom() {
-        println(currentRoom)
-        val newRoom = readln().toInt()
-        currentRoom = newRoom
-        println(currentRoom)
-
-
-    }
-
-//    fun resetScore() {
-//        score = 0
-//    }
-//
-//    fun maxScoreReached(): Boolean {
-//        return score >= 10000
-//    }
-}
-
 class Object(
     private val name: String,
-    private val description: Int
+    private val description: Int,
+    private var examined:Boolean = false
 ){
-    fun examine():String {
-        val description = "You examine the $name"
-
-        return info
+    fun examine(){
+        println("You examine the $name")
+        examined = true
     }
 }
 
-class Room(){
+class Room(
+    val name: String,
+    val description: String,
 
+) {
+    val exits: MutableList<Room> = mutableListOf()
+
+    fun addExit(exit: Room) {
+        exits.add(exit)
+
+    }
 }
 
-class Map(){
-    val rooms: MutableList<Room> = mutableListOf()
-}
+    /**
+     * Application entry point
+     */
+    fun main() {
+        FlatMacDarkLaf.setup()          // Initialise the LAF
+
+        val app = App()                 // Get an app state object
+        val window = MainWindow(app)    // Spawn the UI, passing in the app state
+
+        SwingUtilities.invokeLater { window.show() }
+    }
 
 
-/**
- * Main UI window, handles user clicks, etc.
- *
- * @param app the app state object
- */
-class MainWindow(val app: App) {
-    val frame = JFrame("WINDOW TITLE")
-    private val panel = JPanel().apply { layout = null }
+    /**
+     * Manage app state
+     *
+     */
+    class App {
+        var currentRoom: Room
+        val rooms: MutableList<Room> = mutableListOf()
 
-    private val titleLabel = JLabel("Space escape")
+        init {
+            setUpMap()
+            currentRoom = rooms[0]
+        }
+
+        fun setUpMap() {
+            val cell = Room(
+                "<html><centre>CELL 01 - HOLDING BAY</centre><html>",
+                """<html><wrap>
+                                   =========================================== <br>
+                                   The walls hum with the low vibration of the station's engines. A metal bunk 
+                                   is bolted to the left wall, its surface scratched with years of graffiti. 
+                                   Above a ventilation panel on the far wall, six indicator lights are mounted 
+                                   in a row — three glow steady blue, one pulses weakly, two are dark. 
+                                   A faint smell of recycled air. Somewhere distant, a klaxon sounds and fades.
+                                   </wrap></html>""",
+            )
+
+            val guardRoom = Room(
+                "Guard Station",
+                """GUARD STATION — SECTOR 4 HUB ==============================
+                    A cramped operations room. Banks of monitors line one wall, most dark or
+                    showing static. A guard's workstation dominates the center — a physical
+                    console with switches, levers, and a terminal that's still live, its screen
+                    casting pale green light. A star map is pinned to the far wall. Three heavy
+                    doors lead off in different directions, all sealed."""
+            )
+            rooms.add(cell)
+            rooms.add(guardRoom)
+
+            cell.addExit(guardRoom)
+
+            println(cell.exits[0].name)
+        }
+
+        fun moveRoom() {
+
+//        currentRoom = newRoom
+        }
+
+    }
 
 
-    private val clickButton = JButton("Click Me!")
-    private val infoButton = JButton("Info")
+    /**
+     * Main UI window, handles user clicks, etc.
+     *
+     * @param app the app state object
+     */
+    class MainWindow(val app: App) {
+        val frame = JFrame("WINDOW TITLE")
+        private val panel = JPanel().apply { layout = null }
+
+        private val currentRoomNameLabel = JLabel(app.currentRoom.name)
+        private val currentRoomDescLabel = JLabel(app.currentRoom.description)
+
 
 //    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
 
-    init {
-        setupLayout()
-        setupStyles()
-        setupActions()
-        setupWindow()
-        updateUI()
-    }
+        init {
+            setupLayout()
+            setupStyles()
+            setupActions()
+            setupWindow()
+            updateUI()
+        }
 
-    private fun setupLayout() {
-        panel.preferredSize = java.awt.Dimension(400, 300)
+        private fun setupLayout() {
+            panel.preferredSize = java.awt.Dimension(350, 250)
 
-        titleLabel.setBounds(30, 30, 340, 30)
-        infoLabel.setBounds(30, 90, 340, 30)
-        clickButton.setBounds(30, 150, 240, 40)
-        infoButton.setBounds(300, 150, 70, 40)
+            currentRoomNameLabel.setBounds(40, 10, 400, 20)
+            currentRoomDescLabel.setBounds(30, 80, 300, 160)
 
-
-        panel.add(titleLabel)
-        panel.add(infoLabel)
-        panel.add(clickButton)
-        panel.add(infoButton)
-
-    }
-
-    private fun setupStyles() {
-        titleLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 32)
-        infoLabel.font = Font(Font.SANS_SERIF, Font.PLAIN, 20)
-
-        clickButton.font = Font(Font.SANS_SERIF, Font.PLAIN, 20)
-        clickButton.background = Color(0xcc0055)
-
-        infoButton.font = Font(Font.SANS_SERIF, Font.PLAIN, 20)
+            panel.add(currentRoomNameLabel)
+            panel.add(currentRoomDescLabel)
 
 
-    }
+        }
 
-    private fun setupWindow() {
-        frame.isResizable = true                         // Can't resize
-        frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE  // Exit upon window close
-        frame.contentPane = panel                           // Define the main content
-        frame.pack()
-        frame.setLocationRelativeTo(null)                   // Centre on the screen
-    }
+        private fun setupStyles() {
+            currentRoomNameLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 20)
+            currentRoomDescLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
 
-    private fun setupActions() {
-        clickButton.addActionListener { handleMainClick() }
+
+        }
+
+        private fun setupWindow() {
+            frame.isResizable = true                         // Can't resize
+            frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE  // Exit upon window close
+            frame.contentPane = panel                           // Define the main content
+            frame.pack()
+            frame.setLocationRelativeTo(null)                   // Centre on the screen
+        }
+
+        private fun setupActions() {
+//        clickButton.addActionListener { handleMainClick() }
 //        infoButton.addActionListener { handleInfoClick() }
-    }
+        }
 
-    private fun handleMainClick() {
-        app.moveRoom()       // Update the app state
-        updateUI()                  // Update this window UI to reflect this
-    }
+        private fun handleMainClick() {
+            app.moveRoom()       // Update the app state
+            updateUI()                  // Update this window UI to reflect this
+        }
 
 //    private fun handleInfoClick() {
 //        infoWindow.show()
 //    }
 
-    fun updateUI() {
-        infoLabel.text = "${app.currentRoom}"
+        fun updateUI() {
 
 //        infoWindow.updateUI()       // Keep child dialog window UI up-to-date too
+        }
+
+        fun show() {
+            frame.isVisible = true
+        }
     }
 
-    fun show() {
-        frame.isVisible = true
-    }
-}
 
 
 /**
