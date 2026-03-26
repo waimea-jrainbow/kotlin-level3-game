@@ -50,12 +50,14 @@ class Room(
         init {
             setUpMap()
             currentRoom = rooms[0]
+            println(currentRoom.name)
         }
 
         fun setUpMap() {
             val cell = Room(
-                "<html><centre>CELL 01 - HOLDING BAY</centre><html>",
+                "Cell 01",
                 """<html><wrap>
+                                   CELL 01 - HOLDING BAY
                                    =========================================== <br>
                                    The walls hum with the low vibration of the station's engines. A metal bunk 
                                    is bolted to the left wall, its surface scratched with years of graffiti. 
@@ -66,25 +68,44 @@ class Room(
             )
 
             val guardRoom = Room(
-                "Guard Station",
-                """GUARD STATION — SECTOR 4 HUB ==============================
-                    A cramped operations room. Banks of monitors line one wall, most dark or
-                    showing static. A guard's workstation dominates the center — a physical
-                    console with switches, levers, and a terminal that's still live, its screen
-                    casting pale green light. A star map is pinned to the far wall. Three heavy
-                    doors lead off in different directions, all sealed."""
+                "GUARD STATION",
+                """<html><wrap>
+                                   GUARD STATION — SECTOR 4 HUB
+                                   ==============================
+                                   A cramped operations room. Banks of monitors line one wall, most dark or
+                                   showing static. A guard's workstation dominates the center — a physical
+                                   console with switches, levers, and a terminal that's still live, its screen
+                                   casting pale green light. A star map is pinned to the far wall. Three heavy
+                                   doors lead off in different directions, all sealed.</html></wrap>"""
+            )
+
+            val cargoBay = Room(
+                "CARGO BAY",
+                """<html><wrap>      
+                                   CARGO BAY — STORAGE WING C
+                                   ============================
+                                   A wide, low-ceilinged room lined with magnetic clamping racks. Crates of
+                                   various sizes are locked to the walls and floor in neat rows, each labeled
+                                   with a stenciled symbol rather than text — station protocol, apparently.
+                                   A manifest terminal on the near wall flickers with corrupted data. A tool
+                                   locker stands open in the corner, mostly stripped bare. The room smells
+                                   faintly of machine oil and something burnt.</html>"""
             )
             rooms.add(cell)
             rooms.add(guardRoom)
 
             cell.addExit(guardRoom)
 
-            println(cell.exits[0].name)
+            guardRoom.addExit(cell)
+            guardRoom.addExit(cargoBay)
+
+            cargoBay.addExit(guardRoom)
+
+
         }
 
-        fun moveRoom() {
-
-//        currentRoom = newRoom
+        fun moveRoom(room: Room) {
+            currentRoom = room
         }
 
     }
@@ -99,8 +120,9 @@ class Room(
         val frame = JFrame("WINDOW TITLE")
         private val panel = JPanel().apply { layout = null }
 
-        private val currentRoomNameLabel = JLabel(app.currentRoom.name)
         private val currentRoomDescLabel = JLabel(app.currentRoom.description)
+        private val exit1Button = JButton()
+        private val exit2Button =JButton()
 
 
 //    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
@@ -114,20 +136,27 @@ class Room(
         }
 
         private fun setupLayout() {
-            panel.preferredSize = java.awt.Dimension(350, 250)
+            panel.preferredSize = java.awt.Dimension(450, 350)
 
-            currentRoomNameLabel.setBounds(40, 10, 400, 20)
+
             currentRoomDescLabel.setBounds(30, 80, 300, 160)
+            exit1Button.setBounds(30,250,100,50)
+            exit2Button.setBounds(80,250,100,50)
 
-            panel.add(currentRoomNameLabel)
+
             panel.add(currentRoomDescLabel)
+            panel.add(exit1Button)
+            panel.add(exit2Button)
 
 
         }
 
         private fun setupStyles() {
-            currentRoomNameLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 20)
+
             currentRoomDescLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+
+            exit1Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
+            exit1Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
 
 
         }
@@ -141,22 +170,28 @@ class Room(
         }
 
         private fun setupActions() {
-//        clickButton.addActionListener { handleMainClick() }
-//        infoButton.addActionListener { handleInfoClick() }
+            exit1Button.addActionListener { handleExit1Click() }
+            exit2Button.addActionListener { handleExit2Click() }
+
         }
 
-        private fun handleMainClick() {
-            app.moveRoom()       // Update the app state
+        private fun handleExit1Click() {
+            app.moveRoom(app.currentRoom.exits[0])       // Update the app state
             updateUI()                  // Update this window UI to reflect this
+            println(app.currentRoom.name)
         }
 
-//    private fun handleInfoClick() {
-//        infoWindow.show()
-//    }
+        private fun handleExit2Click() {
+            app.moveRoom(app.currentRoom.exits[1])       // Update the app state
+            updateUI()                  // Update this window UI to reflect this
+            println(app.currentRoom.name)
+        }
 
-        fun updateUI() {
 
-//        infoWindow.updateUI()       // Keep child dialog window UI up-to-date too
+        private fun updateUI() {
+            currentRoomDescLabel.text = app.currentRoom.description
+            exit1Button.text = app.currentRoom.exits[0].name
+            exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else ""
         }
 
         fun show() {
