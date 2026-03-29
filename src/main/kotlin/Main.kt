@@ -71,7 +71,7 @@ class Room(
                 "GUARD STATION",
                 """<html><wrap>
                                    GUARD STATION — SECTOR 4 HUB
-                                   ==============================
+                                   ============================== <br>
                                    A cramped operations room. Banks of monitors line one wall, most dark or
                                    showing static. A guard's workstation dominates the center — a physical
                                    console with switches, levers, and a terminal that's still live, its screen
@@ -83,23 +83,92 @@ class Room(
                 "CARGO BAY",
                 """<html><wrap>      
                                    CARGO BAY — STORAGE WING C
-                                   ============================
+                                   ============================ <br>
                                    A wide, low-ceilinged room lined with magnetic clamping racks. Crates of
                                    various sizes are locked to the walls and floor in neat rows, each labeled
                                    with a stenciled symbol rather than text — station protocol, apparently.
                                    A manifest terminal on the near wall flickers with corrupted data. A tool
                                    locker stands open in the corner, mostly stripped bare. The room smells
-                                   faintly of machine oil and something burnt.</html>"""
+                                   faintly of machine oil and something burnt."""
+            )
+
+            val reactorRoom = Room(
+                "REACTOR ROOM",
+                """<html>
+                                   REACTOR CORE — RESTRICTED ZONE
+                                   ================================ <br>
+                                   Heat hits you immediately. The room pulses with a deep, rhythmic vibration.
+                                   A cylindrical reactor housing dominates the center, its casing streaked
+                                   with scorch marks. Two thick conduit pipes run from the base — one labeled
+                                   INTAKE, one labeled EXHAUST — each controlled by a large lever on the wall.
+                                   Both levers are currently in the OPEN position. A warning light strobes red.
+                                   <br>
+                                   On the wall beside the levers, a placard reads:
+                                   !! PLASMA VENT PROTOCOL !!
+                                   NEVER OPEN BOTH SIMULTANEOUSLY.
+                                   ALWAYS CLOSE EXHAUST BEFORE INTAKE.
+                                   FAILURE TO COMPLY WILL RESULT IN CORE OVERLOAD.
+                                   <br>
+                                   A hazard gauge on the reactor face ticks upward: 40%... 41%...
+                                   <br>
+                                   You have maybe two minutes before this gets very bad.<wrap>"""
+            )
+
+            val medBay = Room(
+                "MED BAY",
+                """<html>
+                                   MEDICAL BAY — WARD B<br>
+                                   ===================== <br>
+                                   Cool and dim compared to the rest of the station. Two recovery beds are
+                                   bolted to the floor, partitioned by a thin curtain. Medical monitors hum
+                                   above each bed, displaying vitals. One bed is empty. The other is occupied.
+                                   <br><br>
+                                   A figure stirs as you enter — a prisoner, like you, in the same grey
+                                   jumpsuit. One arm is in a makeshift splint. They look at you with
+                                   exhausted, cautious eyes.
+                                   <br><br>
+                                   DR. YARA SONG (it says on a faded name tag, though the title seems
+                                   optimistic given the surroundings) says nothing at first. Just watches.<wrap><html>"""
+            )
+
+            val airLock = Room(
+                "AIR LOCK",
+                """<html><wrap>
+                                   AIRLOCK — DOCKING RING 3
+                                   ========================= <br>
+                                   A heavy pressure door dominates the far wall, its surface scratched and
+                                   dented from years of use. Beside it: a biometric scanner, dark and
+                                   inert. On the near wall, a manual override panel sits behind a sealed
+                                   metal plate, its edges fused — someone welded it shut deliberately.
+                                   A small porthole to the right shows open space: stars, and the dim
+                                   shape of a drifting salvage shuttle about two hundred meters out.
+
+                                   The scanner is dark. The override panel is inaccessible.
+                                   You're close. Not there yet.</html>"""
             )
             rooms.add(cell)
             rooms.add(guardRoom)
+            rooms.add(reactorRoom)
+            rooms.add(medBay)
+            rooms.add(airLock)
 
             cell.addExit(guardRoom)
 
             guardRoom.addExit(cell)
             guardRoom.addExit(cargoBay)
+            guardRoom.addExit(reactorRoom)
+            guardRoom.addExit(medBay)
 
             cargoBay.addExit(guardRoom)
+
+            reactorRoom.addExit(guardRoom)
+            reactorRoom.addExit(airLock)
+
+            medBay.addExit(guardRoom)
+            medBay.addExit(airLock)
+
+            airLock.addExit(reactorRoom)
+            airLock.addExit(medBay)
 
 
         }
@@ -122,7 +191,9 @@ class Room(
 
         private val currentRoomDescLabel = JLabel(app.currentRoom.description)
         private val exit1Button = JButton()
-        private val exit2Button =JButton()
+        private val exit2Button = JButton()
+        private val exit3Button = JButton()
+        private val exit4Button = JButton()
 
 
 //    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
@@ -136,17 +207,21 @@ class Room(
         }
 
         private fun setupLayout() {
-            panel.preferredSize = java.awt.Dimension(450, 350)
+            panel.preferredSize = java.awt.Dimension(500, 500)
 
 
-            currentRoomDescLabel.setBounds(30, 80, 300, 160)
-            exit1Button.setBounds(30,250,100,50)
-            exit2Button.setBounds(80,250,100,50)
+            currentRoomDescLabel.setBounds(30, 10, 300, 300)
+            exit1Button.setBounds(30,350,100,50)
+            exit2Button.setBounds(150,350,100,50)
+            exit3Button.setBounds(270,350,100,50)
+            exit4Button.setBounds(390,350,100,50)
 
 
             panel.add(currentRoomDescLabel)
             panel.add(exit1Button)
             panel.add(exit2Button)
+            panel.add(exit3Button)
+            panel.add(exit4Button)
 
 
         }
@@ -156,7 +231,9 @@ class Room(
             currentRoomDescLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
 
             exit1Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
-            exit1Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
+            exit2Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
+            exit3Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
+            exit4Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
 
 
         }
@@ -172,6 +249,8 @@ class Room(
         private fun setupActions() {
             exit1Button.addActionListener { handleExit1Click() }
             exit2Button.addActionListener { handleExit2Click() }
+            exit3Button.addActionListener { handleExit3Click() }
+            exit4Button.addActionListener { handleExit4Click() }
 
         }
 
@@ -187,11 +266,30 @@ class Room(
             println(app.currentRoom.name)
         }
 
+        private fun handleExit3Click() {
+            app.moveRoom(app.currentRoom.exits[2])
+            updateUI()
+            println(app.currentRoom.name)
+        }
+
+        private fun handleExit4Click() {
+            app.moveRoom(app.currentRoom.exits[3])
+            updateUI()
+            println(app.currentRoom.name)
+        }
+
 
         private fun updateUI() {
             currentRoomDescLabel.text = app.currentRoom.description
             exit1Button.text = app.currentRoom.exits[0].name
             exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else ""
+            exit3Button.text = if (app.currentRoom.exits.size > 2) app.currentRoom.exits[2].name else ""
+            exit4Button.text = if (app.currentRoom.exits.size > 3) app.currentRoom.exits[3].name else ""
+
+            exit2Button.isVisible = app.currentRoom.exits.size > 1
+            exit3Button.isVisible = app.currentRoom.exits.size > 2
+            exit4Button.isVisible = app.currentRoom.exits.size > 3
+
         }
 
         fun show() {
