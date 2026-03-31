@@ -6,7 +6,6 @@ class Interactable(
     val name: String,
     val description: String,
     private var examined: Boolean = false,
-    private val hasPuzzle: Boolean = false,
 ) {
     fun examine() {
         examined = true
@@ -196,7 +195,7 @@ class App {
         val cellDoor = Interactable("Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark — no power
                                                                         running to it from this side. You're not getting out that way.""")
         val panel = Interactable("Panel","""<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
-            3-digit keypad with a magnetic lock. If you could open this...""", hasPuzzle = true)
+            3-digit keypad with a magnetic lock. If you could open this...""")
 
         rooms[0].addinteractable(bunk)
         rooms[0].addinteractable(ventLights)
@@ -232,7 +231,7 @@ class MainWindow(val app: App) {
     private val examineListModel = DefaultListModel<Interactable>()
     private val examineList = JList(examineListModel)
 
-    private val infoWindow = puzzle1Window(this, app)
+    private val infoWindow = Puzzle1Window(this, app)
 
 
 //    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
@@ -256,7 +255,7 @@ class MainWindow(val app: App) {
         exit4Button.setBounds(390, 350, 100, 50)
         examineListLabel.setBounds(350, 5, 150, 30)
         examineList.setBounds(350, 35, 150, 290)
-        examinedInteractableDescLabel.setBounds(30, 420, 450, 60)
+        examinedInteractableDescLabel.setBounds(30, 420, 450, 160)
 
         panel.add(currentRoomDescLabel)
         panel.add(exit1Button)
@@ -376,18 +375,19 @@ class MainWindow(val app: App) {
  * @param owner the parent frame, used to position and layer the dialog correctly
  * @param app the app state object
  */
-class puzzle1Window(val owner: MainWindow, val app: App) {
+class Puzzle1Window(val owner: MainWindow, val app: App) {
     private val dialog = JDialog(owner.frame, "MAINTENANCE PANEL", false)
     private val panel = JPanel().apply { layout = null }
 
     private val infoLabel = JLabel()
+    private val enteredCodeLabel = JLabel("")
     private val button1 = JButton("1")
     private val button2 = JButton("2")
     private val button3 = JButton("3")
     private val buttonClr = JButton("CLR")
     private val buttonOK = JButton("OK")
     private var enteredCode = mutableListOf<Int>()
-    private var code = 312
+    private var code = "312"
     private var solved: Boolean = false
 
     init {
@@ -402,6 +402,7 @@ class puzzle1Window(val owner: MainWindow, val app: App) {
         panel.preferredSize = java.awt.Dimension(240, 180)
 
         infoLabel.setBounds(30, 30, 180, 60)
+        enteredCodeLabel.setBounds(30, 40, 180, 60)
 
         button1.setBounds(0, 30, 60, 60)
         button2.setBounds(60, 30, 60, 60)
@@ -410,6 +411,7 @@ class puzzle1Window(val owner: MainWindow, val app: App) {
         buttonOK.setBounds(80, 90, 60, 60)
 
         panel.add(infoLabel)
+        panel.add(enteredCodeLabel)
         panel.add(button1)
         panel.add(button2)
         panel.add(button3)
@@ -419,6 +421,7 @@ class puzzle1Window(val owner: MainWindow, val app: App) {
 
     private fun setupStyles() {
         infoLabel.font = Font(Font.SANS_SERIF, Font.PLAIN, 16)
+        enteredCodeLabel.font = Font(Font.DIALOG_INPUT, Font.BOLD, 16)
 
     }
 
@@ -440,26 +443,30 @@ class puzzle1Window(val owner: MainWindow, val app: App) {
     private fun handle1Click() {
         enteredCode.add(1)
         println(enteredCode.toString())
+        updateUI()
     }
 
     private fun handle2Click() {
         enteredCode.add(2)
         println(enteredCode.toString())
+        updateUI()
     }
 
     private fun handle3Click() {
         enteredCode.add(3)
         println(enteredCode.toString())
+        updateUI()
     }
 
     private fun handleOkClick() {
         println(enteredCode.toString())
-        if (enteredCode.joinToString ("") == "312") {
+        if (enteredCode.joinToString ("") == code) {
             println(enteredCode.toString())
             solved = true
             enteredCode.clear()
             println("correct")
         }
+        enteredCode.clear()
     }
 
     fun show() {
@@ -472,12 +479,16 @@ class puzzle1Window(val owner: MainWindow, val app: App) {
         if (!solved) dialog.isVisible = true
     }
 
-    fun updateUI() {
-
+    private fun updateUI() {
+        val codeForDisplay = List(3) { number ->
+            if (number < enteredCode.size) enteredCode[number].toString() else "_"
+        }
+        enteredCodeLabel.text = codeForDisplay.joinToString("-")
     }
 
     private fun handleClrClick() {
         enteredCode.clear()
+        updateUI()
     }
 
 
