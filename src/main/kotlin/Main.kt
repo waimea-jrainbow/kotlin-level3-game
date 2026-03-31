@@ -4,13 +4,15 @@ import javax.swing.*
 
 class Interactable(
     val name: String,
-    private val description: String,
-    private var examined: Boolean = false
+    val description: String,
+    private var examined: Boolean = false,
+    private val hasPuzzle: Boolean = false,
 ) {
     fun examine() {
-        println("You examine the $name")
         examined = true
     }
+
+    override fun toString() = name
 }
 
 class Room(
@@ -72,6 +74,7 @@ class App {
                                    Above a ventilation panel on the far wall, six indicator lights are mounted 
                                    in a row — three glow steady blue, one pulses weakly, two are dark. 
                                    A faint smell of recycled air. Somewhere distant, a klaxon sounds and fades.
+                                   There is a small maintenance panel set into the wall.
                                    </wrap></html>""",
         )
 
@@ -183,15 +186,22 @@ class App {
 
     private fun setUpinteractables(rooms: MutableList<Room>) {
         val bunk = Interactable("Bunk",
-                            """The bunk is bolted solid — you're not pulling it free.
-                                      But the surface is
+                            """<html><wrap>The bunk is bolted solid - you're not pulling it free. But the surface is
                                       covered in scratches. One message stands out, carved deeper than the rest:
                                       "THE STARS DON'T LIE — 3 BRIGHT, 1 DIM, 2 GONE."
                                       Someone was trying to leave a message for whoever came next.""" )
-        val ventLights = Interactable("Vent lights", "Lorem")
+        val ventLights = Interactable("Vent lights", """<html><wrap>Six lights above the vent panel. From left to right:<br>
+                                                                            [ON] [ON] [ON] [DIM] [OFF] [OFF]<br>
+                                                                            Three steady, one dim, two dead.""")
+        val cellDoor = Interactable("Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark — no power
+                                                                        running to it from this side. You're not getting out that way.""")
+        val panel = Interactable("Panel","""<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
+            3-digit keypad with a magnetic lock. If you could open this...""", hasPuzzle = true)
 
         rooms[0].addinteractable(bunk)
         rooms[0].addinteractable(ventLights)
+        rooms[0].addinteractable(cellDoor)
+        rooms[0].addinteractable(panel)
 
     }
 
@@ -216,9 +226,13 @@ class MainWindow(val app: App) {
     private val exit2Button = JButton()
     private val exit3Button = JButton()
     private val exit4Button = JButton()
-    private val examineList = JList(app.currentRoom.interactables.toTypedArray())
+    private val examinedInteractableDescLabel = JLabel()
 
+    private var examineListLabel = JLabel("Select to examine")
+    private val examineListModel = DefaultListModel<Interactable>()
+    private val examineList = JList(examineListModel)
 
+    private val infoWindow = puzzle1Window(this, app)
 
 
 //    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
@@ -232,23 +246,26 @@ class MainWindow(val app: App) {
     }
 
     private fun setupLayout() {
-        panel.preferredSize = java.awt.Dimension(500, 500)
+        panel.preferredSize = java.awt.Dimension(600, 700)
 
 
-        currentRoomDescLabel.setBounds(30, 10, 300, 300)
+        currentRoomDescLabel.setBounds(30, 0, 300, 300)
         exit1Button.setBounds(30, 350, 100, 50)
         exit2Button.setBounds(150, 350, 100, 50)
         exit3Button.setBounds(270, 350, 100, 50)
         exit4Button.setBounds(390, 350, 100, 50)
-        examineList.setBounds(390,400,100,50)
-
+        examineListLabel.setBounds(350, 5, 150, 30)
+        examineList.setBounds(350, 35, 150, 290)
+        examinedInteractableDescLabel.setBounds(30, 420, 450, 60)
 
         panel.add(currentRoomDescLabel)
         panel.add(exit1Button)
         panel.add(exit2Button)
         panel.add(exit3Button)
         panel.add(exit4Button)
+        panel.add(examineListLabel)
         panel.add(examineList)
+        panel.add(examinedInteractableDescLabel)
 
 
     }
@@ -261,7 +278,9 @@ class MainWindow(val app: App) {
         exit2Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         exit3Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         exit4Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
+        examineListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
         examineList.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+
 
 
     }
@@ -279,6 +298,21 @@ class MainWindow(val app: App) {
         exit2Button.addActionListener { handleExit2Click() }
         exit3Button.addActionListener { handleExit3Click() }
         exit4Button.addActionListener { handleExit4Click() }
+
+        examineList.addListSelectionListener { event ->
+            if (!event.valueIsAdjusting) {
+                val selected = examineList.selectedValue
+                if (selected != null) {
+                    examinedInteractableDescLabel.text = selected.description
+                    selected.examine()
+                    examineList.clearSelection()
+
+                    if (selected.name == "Panel") {
+                        infoWindow.show()
+                    }
+                }
+            }
+        }
 
     }
 
@@ -306,6 +340,10 @@ class MainWindow(val app: App) {
         println(app.currentRoom.name)
     }
 
+    private fun handleExamineClick() {
+
+    }
+
 
     private fun updateUI() {
         currentRoomDescLabel.text = app.currentRoom.description
@@ -318,7 +356,10 @@ class MainWindow(val app: App) {
         exit3Button.isVisible = app.currentRoom.exits.size > 2
         exit4Button.isVisible = app.currentRoom.exits.size > 3
 
-        
+        examineListModel.clear()
+        app.currentRoom.interactables.forEach { interactable ->
+            examineListModel.addElement(interactable)
+        }
 
     }
 
@@ -335,66 +376,110 @@ class MainWindow(val app: App) {
  * @param owner the parent frame, used to position and layer the dialog correctly
  * @param app the app state object
  */
-//class InfoWindow(val owner: MainWindow, val app: App) {
-//    private val dialog = JDialog(owner.frame, "DIALOG TITLE", false)
-//    private val panel = JPanel().apply { layout = null }
-//
-//    private val infoLabel = JLabel()
-//    private val resetButton = JButton("Reset")
-//
-//    init {
-//        setupLayout()
-//        setupStyles()
-//        setupActions()
-//        setupWindow()
-//        updateUI()
-//    }
-//
-//    private fun setupLayout() {
-//        panel.preferredSize = java.awt.Dimension(240, 180)
-//
-//        infoLabel.setBounds(30, 30, 180, 60)
-//        resetButton.setBounds(30, 120, 180, 30)
-//
-//        panel.add(infoLabel)
-//        panel.add(resetButton)
-//    }
-//
-//    private fun setupStyles() {
-//        infoLabel.font = Font(Font.SANS_SERIF, Font.PLAIN, 16)
-//        resetButton.font = Font(Font.SANS_SERIF, Font.PLAIN, 16)
-//    }
-//
-//    private fun setupWindow() {
-//        dialog.isResizable = false                              // Can't resize
-//        dialog.defaultCloseOperation = JDialog.HIDE_ON_CLOSE    // Hide upon window close
-//        dialog.contentPane = panel                              // Main content panel
-//        dialog.pack()
-//    }
-//
-////    private fun setupActions() {
-////        resetButton.addActionListener { handleResetClick() }
-////    }
-////
-////    private fun handleResetClick() {
-////        app.resetScore()    // Update the app state
-////        owner.updateUI()    // Update the UI to reflect this, via the main window
-////    }
-////
-////    fun updateUI() {
-////        // Use app properties to display state
-////        infoLabel.text = "<html>User: ${app.name}<br>Score: ${app.score} points"
-////
-////        resetButton.isEnabled = app.score > 0
-////    }
-//
-//    fun show() {
-//        val ownerBounds = owner.frame.bounds          // get location of the main window
-//        dialog.setLocation(                           // Position next to main window
-//            ownerBounds.x + ownerBounds.width + 10,
-//            ownerBounds.y
-//        )
-//
-//        dialog.isVisible = true
-//    }
-//}
+class puzzle1Window(val owner: MainWindow, val app: App) {
+    private val dialog = JDialog(owner.frame, "MAINTENANCE PANEL", false)
+    private val panel = JPanel().apply { layout = null }
+
+    private val infoLabel = JLabel()
+    private val button1 = JButton("1")
+    private val button2 = JButton("2")
+    private val button3 = JButton("3")
+    private val buttonClr = JButton("CLR")
+    private val buttonOK = JButton("OK")
+    private var enteredCode = mutableListOf<Int>()
+    private var code = 312
+    private var solved: Boolean = false
+
+    init {
+        setupLayout()
+        setupStyles()
+        setupActions()
+        setupWindow()
+        updateUI()
+    }
+
+    private fun setupLayout() {
+        panel.preferredSize = java.awt.Dimension(240, 180)
+
+        infoLabel.setBounds(30, 30, 180, 60)
+
+        button1.setBounds(0, 30, 60, 60)
+        button2.setBounds(60, 30, 60, 60)
+        button3.setBounds(120, 30, 60, 60)
+        buttonClr.setBounds(0, 90, 60, 60)
+        buttonOK.setBounds(80, 90, 60, 60)
+
+        panel.add(infoLabel)
+        panel.add(button1)
+        panel.add(button2)
+        panel.add(button3)
+        panel.add(buttonClr)
+        panel.add(buttonOK)
+    }
+
+    private fun setupStyles() {
+        infoLabel.font = Font(Font.SANS_SERIF, Font.PLAIN, 16)
+
+    }
+
+    private fun setupWindow() {
+        dialog.isResizable = false                              // Can't resize
+        dialog.defaultCloseOperation = JDialog.HIDE_ON_CLOSE    // Hide upon window close
+        dialog.contentPane = panel                              // Main content panel
+        dialog.pack()
+    }
+
+    private fun setupActions() {
+        button1.addActionListener { handle1Click() }
+        button2.addActionListener { handle2Click() }
+        button3.addActionListener { handle3Click() }
+        buttonClr.addActionListener { handleClrClick() }
+        buttonOK.addActionListener { handleOkClick() }
+    }
+
+    private fun handle1Click() {
+        enteredCode.add(1)
+        println(enteredCode.toString())
+    }
+
+    private fun handle2Click() {
+        enteredCode.add(2)
+        println(enteredCode.toString())
+    }
+
+    private fun handle3Click() {
+        enteredCode.add(3)
+        println(enteredCode.toString())
+    }
+
+    private fun handleOkClick() {
+        println(enteredCode.toString())
+        if (enteredCode.joinToString ("") == "312") {
+            println(enteredCode.toString())
+            solved = true
+            enteredCode.clear()
+            println("correct")
+        }
+    }
+
+    fun show() {
+        val ownerBounds = owner.frame.bounds          // get location of the main window
+        dialog.setLocation(                           // Position next to main window
+            ownerBounds.x + ownerBounds.width + 10,
+            ownerBounds.y
+        )
+
+        if (!solved) dialog.isVisible = true
+    }
+
+    fun updateUI() {
+
+    }
+
+    private fun handleClrClick() {
+        enteredCode.clear()
+    }
+
+
+
+}
