@@ -318,7 +318,7 @@ class MainWindow(val app: App) {
         exit3Button.isVisible = app.currentRoom.exits.size > 2
         exit4Button.isVisible = app.currentRoom.exits.size > 3
 
-        examineList.
+        
 
     }
 
