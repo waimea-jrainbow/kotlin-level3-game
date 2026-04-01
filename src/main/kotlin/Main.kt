@@ -1,12 +1,17 @@
 import com.formdev.flatlaf.themes.FlatMacDarkLaf
+import java.awt.Color
 import java.awt.Font
 import javax.swing.*
 
 class Interactable(
     val name: String,
     val description: String,
-    private var examined: Boolean = false,
+    val isPuzzle: Boolean = false
+
 ) {
+    private var examined: Boolean = false
+    var solved = false
+
     fun examine() {
         examined = true
     }
@@ -20,7 +25,7 @@ class Room(
     var interactables: MutableList<Interactable> = mutableListOf()
 
 
-    ) {
+) {
     val exits: MutableList<Room> = mutableListOf()
 
 
@@ -29,7 +34,7 @@ class Room(
 
     }
 
-    fun addinteractable(interactable:Interactable) {
+    fun addinteractable(interactable: Interactable) {
         interactables.add(interactable)
     }
 }
@@ -53,7 +58,9 @@ fun main() {
  */
 class App {
     var currentRoom: Room
-    private val rooms: MutableList<Room> = mutableListOf()
+    val rooms: MutableList<Room> = mutableListOf()
+    var currentInteractable: Interactable? = null
+    var canMove = true
 
     init {
         setUpRooms()
@@ -184,24 +191,40 @@ class App {
     }
 
     private fun setUpinteractables(rooms: MutableList<Room>) {
-        val bunk = Interactable("Bunk",
-                            """<html><wrap>The bunk is bolted solid - you're not pulling it free. But the surface is
+        val bunk = Interactable(
+            "Bunk",
+            """<html><wrap>The bunk is bolted solid - you're not pulling it free. But the surface is
                                       covered in scratches. One message stands out, carved deeper than the rest:
                                       "THE STARS DON'T LIE — 3 BRIGHT, 1 DIM, 2 GONE."
-                                      Someone was trying to leave a message for whoever came next.""" )
-        val ventLights = Interactable("Vent lights", """<html><wrap>Six lights above the vent panel. From left to right:<br>
+                                      Someone was trying to leave a message for whoever came next."""
+        )
+        val ventLights = Interactable(
+            "Vent lights", """<html><wrap>Six lights above the vent panel. From left to right:<br>
                                                                             [ON] [ON] [ON] [DIM] [OFF] [OFF]<br>
-                                                                            Three steady, one dim, two dead.""")
-        val cellDoor = Interactable("Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark — no power
-                                                                        running to it from this side. You're not getting out that way.""")
-        val panel = Interactable("Panel","""<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
-            3-digit keypad with a magnetic lock. If you could open this...""")
+                                                                            Three steady, one dim, two dead."""
+        )
+        val cellDoor = Interactable(
+            "Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark — no power
+                                                                        running to it from this side. You're not getting out that way."""
+        )
+        val panel = Interactable(
+            "Panel", """<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
+            3-digit keypad with a magnetic lock. If you could open this...""", true
+        )
 
         rooms[0].addinteractable(bunk)
         rooms[0].addinteractable(ventLights)
         rooms[0].addinteractable(cellDoor)
         rooms[0].addinteractable(panel)
 
+    }
+
+    fun interactableSolved() {
+        currentInteractable?.solved = true
+    }
+
+    fun currentInteractableSolved(): Boolean {
+        return currentInteractable?.solved ?: false
     }
 
     fun moveRoom(room: Room) {
@@ -217,7 +240,7 @@ class App {
  * @param app the app state object
  */
 class MainWindow(val app: App) {
-    val frame = JFrame("WINDOW TITLE")
+    val frame = JFrame("Space escape")
     private val panel = JPanel().apply { layout = null }
 
     private val currentRoomDescLabel = JLabel(app.currentRoom.description)
@@ -234,13 +257,17 @@ class MainWindow(val app: App) {
     private val infoWindow = Puzzle1Window(this, app)
 
 
-//    private val infoWindow = InfoWindow(this, app)      // Pass app state to dialog too
-
     init {
         setupLayout()
         setupStyles()
         setupActions()
         setupWindow()
+
+        exit1Button.isVisible = false
+        exit2Button.isVisible = false
+        exit3Button.isVisible = false
+        exit4Button.isVisible = false
+
         updateUI()
     }
 
@@ -279,9 +306,6 @@ class MainWindow(val app: App) {
         exit4Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         examineListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
         examineList.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
-
-
-
     }
 
     private fun setupWindow() {
@@ -306,13 +330,14 @@ class MainWindow(val app: App) {
                     selected.examine()
                     examineList.clearSelection()
 
+                    app.currentInteractable = selected
+
                     if (selected.name == "Panel") {
                         infoWindow.show()
                     }
                 }
             }
         }
-
     }
 
     private fun handleExit1Click() {
@@ -339,18 +364,21 @@ class MainWindow(val app: App) {
         println(app.currentRoom.name)
     }
 
-    private fun handleExamineClick() {
 
-    }
+    fun updateUI() {
 
+        app.currentRoom.interactables.forEach{ interactable ->
+            if (interactable.isPuzzle && !interactable.solved)
+                app.canMove = false
+        }
 
-    private fun updateUI() {
         currentRoomDescLabel.text = app.currentRoom.description
         exit1Button.text = app.currentRoom.exits[0].name
         exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else ""
         exit3Button.text = if (app.currentRoom.exits.size > 2) app.currentRoom.exits[2].name else ""
         exit4Button.text = if (app.currentRoom.exits.size > 3) app.currentRoom.exits[3].name else ""
 
+        exit1Button.isVisible = app.canMove
         exit2Button.isVisible = app.currentRoom.exits.size > 1
         exit3Button.isVisible = app.currentRoom.exits.size > 2
         exit4Button.isVisible = app.currentRoom.exits.size > 3
@@ -359,6 +387,12 @@ class MainWindow(val app: App) {
         app.currentRoom.interactables.forEach { interactable ->
             examineListModel.addElement(interactable)
         }
+
+
+
+
+
+
 
     }
 
@@ -379,8 +413,8 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     private val dialog = JDialog(owner.frame, "MAINTENANCE PANEL", false)
     private val panel = JPanel().apply { layout = null }
 
-    private val infoLabel = JLabel()
     private val enteredCodeLabel = JLabel("")
+    private var codeFeedbackLabel = JLabel("")
     private val button1 = JButton("1")
     private val button2 = JButton("2")
     private val button3 = JButton("3")
@@ -388,7 +422,6 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     private val buttonOK = JButton("OK")
     private var enteredCode = mutableListOf<Int>()
     private var code = "312"
-    private var solved: Boolean = false
 
     init {
         setupLayout()
@@ -401,17 +434,19 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     private fun setupLayout() {
         panel.preferredSize = java.awt.Dimension(240, 180)
 
-        infoLabel.setBounds(30, 30, 180, 60)
-        enteredCodeLabel.setBounds(30, 40, 180, 60)
 
-        button1.setBounds(0, 30, 60, 60)
-        button2.setBounds(60, 30, 60, 60)
-        button3.setBounds(120, 30, 60, 60)
-        buttonClr.setBounds(0, 90, 60, 60)
-        buttonOK.setBounds(80, 90, 60, 60)
+        enteredCodeLabel.setBounds(60, 5, 180, 30)
+        codeFeedbackLabel.setBounds(60, 20, 180, 30)
 
-        panel.add(infoLabel)
+        button1.setBounds(0, 50, 60, 60)
+        button2.setBounds(60, 50, 60, 60)
+        button3.setBounds(120, 50, 60, 60)
+        buttonClr.setBounds(0, 110, 60, 60)
+        buttonOK.setBounds(80, 110, 60, 60)
+
+
         panel.add(enteredCodeLabel)
+        panel.add(codeFeedbackLabel)
         panel.add(button1)
         panel.add(button2)
         panel.add(button3)
@@ -420,8 +455,9 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     }
 
     private fun setupStyles() {
-        infoLabel.font = Font(Font.SANS_SERIF, Font.PLAIN, 16)
         enteredCodeLabel.font = Font(Font.DIALOG_INPUT, Font.BOLD, 16)
+        codeFeedbackLabel.font = Font(Font.DIALOG_INPUT, Font.PLAIN, 16)
+
 
     }
 
@@ -437,36 +473,67 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
         button2.addActionListener { handle2Click() }
         button3.addActionListener { handle3Click() }
         buttonClr.addActionListener { handleClrClick() }
-        buttonOK.addActionListener { handleOkClick() }
+        buttonOK.addActionListener { checkCode() }
     }
 
     private fun handle1Click() {
         enteredCode.add(1)
         println(enteredCode.toString())
+        if (enteredCode.size == 3) checkCode()
         updateUI()
     }
 
     private fun handle2Click() {
         enteredCode.add(2)
         println(enteredCode.toString())
+        if (enteredCode.size == 3) checkCode()
         updateUI()
     }
 
     private fun handle3Click() {
         enteredCode.add(3)
         println(enteredCode.toString())
+        if (enteredCode.size == 3) checkCode()
         updateUI()
     }
 
-    private fun handleOkClick() {
+    private fun checkCode() {
         println(enteredCode.toString())
-        if (enteredCode.joinToString ("") == code) {
-            println(enteredCode.toString())
-            solved = true
-            enteredCode.clear()
-            println("correct")
+        if (enteredCode.joinToString("") == code) {
+            app.interactableSolved()
+            codeStatusText()
+            val closeTimer = Timer(900) {
+                println(enteredCode.toString())
+                println("correct")
+                dialog.dispose()
+            }
+            closeTimer.isRepeats = false
+            closeTimer.start()
+            owner.updateUI()
+        } else {
+            codeStatusText()
+            val closeTimer = Timer(900) {
+                enteredCode.clear()
+                codeFeedbackLabel.text = ""
+                updateUI()
+            }
+            closeTimer.isRepeats = false
+            closeTimer.start()
         }
-        enteredCode.clear()
+
+    }
+
+
+
+    private fun codeStatusText() {
+        if (app.currentInteractableSolved()) {
+            codeFeedbackLabel.text = "Correct"
+            codeFeedbackLabel.foreground = Color.green
+        } else {
+            codeFeedbackLabel.text = "Incorrect"
+            codeFeedbackLabel.foreground = Color.red
+        }
+
     }
 
     fun show() {
@@ -476,7 +543,7 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
             ownerBounds.y
         )
 
-        if (!solved) dialog.isVisible = true
+        if (!app.currentInteractableSolved()) dialog.isVisible = true
     }
 
     private fun updateUI() {
@@ -490,7 +557,6 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
         enteredCode.clear()
         updateUI()
     }
-
 
 
 }
