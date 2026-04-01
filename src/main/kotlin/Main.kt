@@ -3,11 +3,23 @@ import java.awt.Color
 import java.awt.Font
 import javax.swing.*
 
+
+/**
+ * Represents an object within a Room that the player can examine or interact with.
+ *
+ * Interactables may be objects with descriptions (e.g. a bunk or a door) or puzzle
+ * objects that must be solved before the player can progress. Each interactable tracks
+ * whether it has been examined and, if it is a puzzle, whether it has been solved.
+ *
+ * @property name        A short display name shown in the examine list (e.g. "Bunk", "Panel").
+ * @property description The flavour text shown to the player when the object is examined.
+ * @property isPuzzle    Whether this interactable contains a puzzle that blocks progression.
+ *                       Defaults to `false`.
+ */
 class Interactable(
     val name: String,
     val description: String,
     val isPuzzle: Boolean = false
-
 ) {
     private var examined: Boolean = false
     var solved = false
@@ -19,6 +31,17 @@ class Interactable(
     override fun toString() = name
 }
 
+/**
+ * Represents a location in the game world that the player can enter and occupy.
+ *
+ * Each room has a name, a description that is shown to the player, a list of
+ * Interactable objects the player can examine, and a list of connected Room exits
+ * the player can move to.
+ *
+ * @property name          The short display name of the room (e.g. "GUARD STATION").
+ * @property description   The description shown to the player upon entering.
+ * @property interactables The mutable list of objects present in the room.
+ */
 class Room(
     val name: String,
     val description: String,
@@ -40,7 +63,10 @@ class Room(
 }
 
 /**
- * Application entry point
+ * Application entry point.
+ *
+ * Initialises the FlatMacDark look-and-feel, constructs the App state object and the
+ * MainWindow UI, then schedules the window to become visible.
  */
 fun main() {
     FlatMacDarkLaf.setup()          // Initialise the LAF
@@ -53,8 +79,18 @@ fun main() {
 
 
 /**
- * Manage app state
+ * Central game-state that holds all rooms, tracks the player's current location,
+ * and coordinates puzzle progression.
  *
+ * App is constructed once at startup. It builds and connects all Room instances,
+ * populates them with Interactable objects.
+ *
+ * @property currentRoom          The room the player is currently in.
+ * @property rooms                The ordered list of all rooms in the game.
+ * @property currentInteractable  The Interactable most recently selected by the player,
+ *                                or `null` if none has been selected yet.
+ * @property canMove              Whether the player is currently allowed to move between
+ *                                rooms. Set to `false` while an unsolved puzzle blocks exit.
  */
 class App {
     var currentRoom: Room
@@ -235,9 +271,9 @@ class App {
 
 
 /**
- * Main UI window, handles user clicks, etc.
+ * The primary application window shows the current room, its exits and its examinable objects
  *
- * @param app the app state object
+ * @param app The shared App state object that this window reads from and writes to.
  */
 class MainWindow(val app: App) {
     val frame = JFrame("Space escape")
@@ -367,7 +403,7 @@ class MainWindow(val app: App) {
 
     fun updateUI() {
 
-        app.currentRoom.interactables.forEach{ interactable ->
+        app.currentRoom.interactables.forEach { interactable ->
             if (interactable.isPuzzle && !interactable.solved)
                 app.canMove = false
         }
@@ -389,11 +425,6 @@ class MainWindow(val app: App) {
         }
 
 
-
-
-
-
-
     }
 
     fun show() {
@@ -403,11 +434,17 @@ class MainWindow(val app: App) {
 
 
 /**
- * Info UI window is a child dialog and shows how the
- * app state can be shown / updated from multiple places
+ * A JDialog that presents the maintenance-panel number puzzle to the player.
  *
- * @param owner the parent frame, used to position and layer the dialog correctly
- * @param app the app state object
+ * The puzzle displays a three-digit code interface with buttons for the digits 1–3,
+ * a clear button, and a confirm button. The correct code is derived from the clues left
+ * in the cell (the vent lights: three ON, one DIM, two OFF → "312"). On correct entry
+ * the dialog closes automatically after a short delay and marks the associated
+ * Interactable as solved via App.interactableSolved, which then allows the player to move
+ * the next room
+ *
+ * @param owner The MainWindow that owns this dialog, used for positioning.
+ * @param app   The shared App state object used to check and update puzzle state.
  */
 class Puzzle1Window(val owner: MainWindow, val app: App) {
     private val dialog = JDialog(owner.frame, "MAINTENANCE PANEL", false)
@@ -522,7 +559,6 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
         }
 
     }
-
 
 
     private fun codeStatusText() {
