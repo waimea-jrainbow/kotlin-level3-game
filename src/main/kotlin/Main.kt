@@ -402,6 +402,7 @@ class MainWindow(val app: App) {
 
 
     fun updateUI() {
+        app.canMove = true
 
         app.currentRoom.interactables.forEach { interactable ->
             if (interactable.isPuzzle && !interactable.solved)
