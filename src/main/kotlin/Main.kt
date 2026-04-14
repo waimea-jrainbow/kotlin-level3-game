@@ -57,7 +57,7 @@ class Room(
 
     }
 
-    fun addinteractable(interactable: Interactable) {
+    fun addInteractable(interactable: Interactable) {
         interactables.add(interactable)
     }
 }
@@ -65,7 +65,7 @@ class Room(
 /**
  * Application entry point.
  *
- * Initialises the FlatMacDark look-and-feel, constructs the App state object and the
+ * Initializes the FlatMacDark look-and-feel, constructs the App state object and the
  * MainWindow UI, then schedules the window to become visible.
  */
 fun main() {
@@ -100,7 +100,7 @@ class App {
 
     init {
         setUpRooms()
-        setUpinteractables(rooms)
+        setUpInteractables(rooms)
         currentRoom = rooms[0]
         println(currentRoom.name)
     }
@@ -226,7 +226,8 @@ class App {
 
     }
 
-    private fun setUpinteractables(rooms: MutableList<Room>) {
+    private fun setUpInteractables(rooms: MutableList<Room>) {
+        // Cell setup
         val bunk = Interactable(
             "Bunk",
             """<html><wrap>The bunk is bolted solid - you're not pulling it free. But the surface is
@@ -248,10 +249,64 @@ class App {
             3-digit keypad with a magnetic lock. If you could open this...""", true
         )
 
-        rooms[0].addinteractable(bunk)
-        rooms[0].addinteractable(ventLights)
-        rooms[0].addinteractable(cellDoor)
-        rooms[0].addinteractable(panel)
+        rooms[0].addInteractable(bunk)
+        rooms[0].addInteractable(ventLights)
+        rooms[0].addInteractable(cellDoor)
+        rooms[0].addInteractable(panel)
+
+        //Guard setup
+        val console = Interactable(
+            "Console", """<html><wrap>The main workstation. A terminal screen glows with a login prompt, but the
+                                              keyboard is locked — access requires a physical switch combination entered
+                                              on the console panel first. Four switches sit in a row, each flipped either
+                                              UP (1) or DOWN (0). Currently all four are DOWN: [0][0][0][0].
+                                              A label above them reads: ACCESS CODE — SET PATTERN, THEN CONFIRM."""
+        )
+
+        val starMap = Interactable(
+            "Star map", """<html><wrap>A navigation chart of the sector pinned to the wall. Several constellations
+                                               are marked. One is circled in red marker and labeled "THE WARDEN." It looks
+                                               like a cross — a vertical line of three stars, one star branching left from
+                                               the middle, one branching right.
+
+                                               You sketch it mentally:<br>
+                                                   [ ]<br>
+                                                   [*]<br>
+                                                 [*][*][*]<br>
+                                                 [*]"""
+        )
+
+        val terminal = Interactable(
+            "Terminal", """<html><wrap>The terminal screen shows:<br>
+
+                                                           STATION ZERO — SECURITY TERMINAL v4.1<br>
+                                                             > PHYSICAL ACCESS LOCK ENGAGED<br>
+                                                             > Set switch pattern to authenticate.<br>
+                                                             > Pattern hint: THE WARDEN WATCHES.<br><br>
+
+                                                           Beneath that, a CONFIRM button glows amber."""
+        )
+
+        val desk = Interactable("Desk", """<html><wrap>A standard-issue guard's desk. Empty coffee bulb, a duty roster you don't
+                                                               care about, a personal photo face-down. The top drawer is locked. The
+                                                               bottom drawer slides open — empty except for some lint and a stylus."""
+        )
+
+        val photo = Interactable("Photo","""<html><wrap>You flip it over. A guard in dress uniform, smiling with a family.
+                                                                You set it back down, face-up this time.""")
+
+        val doors = Interactable("Doors", """<html><wrap>Three reinforced security doors. Door A is marked REACTOR - AUTHORIZED
+                                                                             PERSONNEL ONLY. Door B is marked MEDICAL. Both are sealed. The corridor
+                                                                             to the cargo bay has no door just an open arch.""")
+
+        rooms[1].addInteractable(console)
+        rooms[1].addInteractable(starMap)
+        rooms[1].addInteractable(terminal)
+        rooms[1].addInteractable(desk)
+        rooms[1].addInteractable(photo)
+        rooms[1].addInteractable(desk)
+        rooms[1].addInteractable(doors)
+
 
     }
 
