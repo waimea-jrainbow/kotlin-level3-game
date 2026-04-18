@@ -201,6 +201,7 @@ class App {
         )
         rooms.add(cell)
         rooms.add(guardRoom)
+        rooms.add(cargoBay)
         rooms.add(reactorRoom)
         rooms.add(medBay)
         rooms.add(airLock)
@@ -307,6 +308,68 @@ class App {
         rooms[1].addInteractable(desk)
         rooms[1].addInteractable(doors)
 
+        //Cargo Bay setup
+        val crates = Interactable("Crate", """<html><wrap>Twelve crates in total, numbered 0 through 11 in stencil. Each has a
+                                                                  symbol on its face instead of a contents label. The symbols look like
+                                                                  they correspond to a key on the manifest terminal — but the terminal
+                                                                  is corrupted. Most crates are sealed with magnetic clamps you can't
+                                                                  budge without a cutter.
+                                                                  <br><br>
+                                                                  Crate 0 looks different. It has no clamp. It's just... sitting there.""")
+
+        val manifest = Interactable("Manifest", """<html><wrap>The manifest terminal is mostly static. You can make out fragments:
+
+                                                                       CRATE 04 — [corrupted] — 14.2kg
+                                                                       CRATE 07 — THERMAL CUTTING TOOL — 2.1kg
+                                                                       CRATE 09 — [corrupted] — 8.7kg
+                                                                       CRATE 11 — [corrupted] — 31.0kg
+
+                                                                       The rest is unreadable. One line at the bottom is clear:
+                                                                       "CRATE 00 — [no entry] — 0.0kg"""")
+
+        val toolLocker = Interactable("Tool locker", """<html><wrap>A standard-issue crew locker, door hanging open. Whoever left in a hurry
+                                                                            cleaned it out. All that remains is an empty bracket labeled THERMAL
+                                                                            CUTTER and a hook with nothing on it.""")
+
+        val wall = Interactable("Wall","""<html><wrap>Someone has scratched a riddle into the wall near the door — same
+                                                              handwriting as the cell, you think:
+
+                                                              "I CARRY COLD, I FIGHT HEAT.
+                                                              FIND ME IN THE CRATE THAT WEIGHS NOTHING."""")
+
+        val crate4 = Interactable("Crate 1", """<html><wrap>Crate 0 has no clamp — it slides open easily. Inside is a single
+                                                                    object wrapped in insulating foam: a coolant canister, pressurized
+                                                                    and cold to the touch. The weight sticker reads 0.0kg (the canister
+                                                                    is lighter-than-air rated for zero-g environments).
+                                                                    <br><br>
+                                                                    [COOLANT CANISTER added to inventory]""")
+
+        val crate7 = Interactable("Crate 2", """<html><wrap>Sealed tight with a magnetic clamp. The manifest entry is corrupted —
+                                                                    you have no idea what's inside. Heavy, by the look of it.""")
+
+        val crate9 = Interactable("Crate 3", """<html><wrap>Sealed tight with a magnetic clamp. The manifest entry is corrupted —
+                                                                    you have no idea what's inside. Heavy, by the look of it.""")
+
+        val crate11 = Interactable("Crate 7", """<html><wrap>Crate 7 is sealed with a magnetic clamp. You'd need a thermal cutter
+                                                                    to get through it. Ironically, that's exactly what the manifest says
+                                                                    is inside.""")
+
+        val crate0 = Interactable("Crate 00", """Crate 0 has no clamp — it slides open easily. Inside is a single
+                                                                     object wrapped in insulating foam: a coolant canister, pressurized
+                                                                     and cold to the touch. The weight sticker reads 0.0kg (the canister
+                                                                     is lighter-than-air rated for zero-g environments).
+
+                                                                     [COOLANT CANISTER added to inventory]""")
+
+        rooms[2].addInteractable(crates)
+        rooms[2].addInteractable(manifest)
+        rooms[2].addInteractable(toolLocker)
+        rooms[2].addInteractable(wall)
+        rooms[2].addInteractable(crate4)
+        rooms[2].addInteractable(crate7)
+        rooms[2].addInteractable(crate9)
+        rooms[2].addInteractable(crate11)
+        rooms[2].addInteractable(crate0)
 
     }
 
