@@ -1,0 +1,8 @@
+- Fix puzzlewindow docs
+- ID card to inventory - setup inventory for airlock puzzle
+- Star map constellation sketch
+
+- Text change on puzzle completion
+
+- change cell descriptions
+- make sure visited works and document it

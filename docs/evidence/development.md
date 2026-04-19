@@ -10,11 +10,16 @@ The development log captures key moments in your application development:
 
 ---
 
-## Date: xx/xx/20xx
+## Date: 19/04/2026
 
-Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes.
+Realized I have made my planned puzzle a little too complicated for the time I have 
+so scaled down to a more doable set of puzzles
 
-![example.png](screenshots/example.png)
+before:
+![sketch1.png](screenshots/sketch1.png)
+
+After
+![sketch2.png](screenshots/sketch2.png)
 
 ---
 

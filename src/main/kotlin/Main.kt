@@ -45,7 +45,8 @@ class Interactable(
 class Room(
     val name: String,
     val description: String,
-    var interactables: MutableList<Interactable> = mutableListOf()
+    var interactables: MutableList<Interactable> = mutableListOf(),
+    var visited: Boolean = false
 
 
 ) {
@@ -250,6 +251,9 @@ class App {
             3-digit keypad with a magnetic lock. If you could open this...""", true
         )
 
+
+
+
         rooms[0].addInteractable(bunk)
         rooms[0].addInteractable(ventLights)
         rooms[0].addInteractable(cellDoor)
@@ -257,40 +261,28 @@ class App {
 
         //Guard setup
         val console = Interactable(
-            "Console", """<html><wrap>The main workstation. A terminal screen glows with a login prompt, but the
-                                              keyboard is locked — access requires a physical switch combination entered
-                                              on the console panel first. Four switches sit in a row, each flipped either
-                                              UP (1) or DOWN (0). Currently all four are DOWN: [0][0][0][0].
-                                              A label above them reads: ACCESS CODE — SET PATTERN, THEN CONFIRM."""
+            "Console", """<html><wrap>The main workstation. A terminal screen glows with a login prompt, the keyboard is locked
+                                                          however to the side there is a keypad labelled 
+                                                          <br><br>
+                                                          DOOR CONTROL 
+                                                          <br><br>
+                                                          Scratched into the keypad is a message
+                                                          "Look to the stars and you will find the key"
+                                                          """, true
         )
 
         val starMap = Interactable(
             "Star map", """<html><wrap>A navigation chart of the sector pinned to the wall. Several constellations
-                                               are marked. One is circled in red marker and labeled "THE WARDEN." It looks
-                                               like a cross — a vertical line of three stars, one star branching left from
-                                               the middle, one branching right.
-
-                                               You sketch it mentally:<br>
-                                                   [ ]<br>
-                                                   [*]<br>
-                                                 [*][*][*]<br>
-                                                 [*]"""
+                                               are marked. One is circled in red marker
+                                               a horizontal line of <strong>three</strong> stars, a branch down to another line of <strong>six</strong> stars then 
+                                               another branch down to a line of <strong>five</strong> stars
+                                               """
         )
 
-        val terminal = Interactable(
-            "Terminal", """<html><wrap>The terminal screen shows:<br>
-
-                                                           STATION ZERO — SECURITY TERMINAL v4.1<br>
-                                                             > PHYSICAL ACCESS LOCK ENGAGED<br>
-                                                             > Set switch pattern to authenticate.<br>
-                                                             > Pattern hint: THE WARDEN WATCHES.<br><br>
-
-                                                           Beneath that, a CONFIRM button glows amber."""
-        )
 
         val desk = Interactable("Desk", """<html><wrap>A standard-issue guard's desk. Empty coffee bulb, a duty roster you don't
                                                                care about, a personal photo face-down. The top drawer is locked. The
-                                                               bottom drawer slides open — empty except for some lint and a stylus."""
+                                                               bottom drawer slides open inside is a guard ID card"""
         )
 
         val photo = Interactable("Photo","""<html><wrap>You flip it over. A guard in dress uniform, smiling with a family.
@@ -302,74 +294,18 @@ class App {
 
         rooms[1].addInteractable(console)
         rooms[1].addInteractable(starMap)
-        rooms[1].addInteractable(terminal)
         rooms[1].addInteractable(desk)
         rooms[1].addInteractable(photo)
         rooms[1].addInteractable(desk)
         rooms[1].addInteractable(doors)
 
         //Cargo Bay setup
-        val crates = Interactable("Crate", """<html><wrap>Twelve crates in total, numbered 0 through 11 in stencil. Each has a
-                                                                  symbol on its face instead of a contents label. The symbols look like
-                                                                  they correspond to a key on the manifest terminal — but the terminal
-                                                                  is corrupted. Most crates are sealed with magnetic clamps you can't
-                                                                  budge without a cutter.
-                                                                  <br><br>
-                                                                  Crate 0 looks different. It has no clamp. It's just... sitting there.""")
 
-        val manifest = Interactable("Manifest", """<html><wrap>The manifest terminal is mostly static. You can make out fragments:
+        val wall = Interactable("Wall","""<html><wrap>"""")
 
-                                                                       CRATE 04 — [corrupted] — 14.2kg
-                                                                       CRATE 07 — THERMAL CUTTING TOOL — 2.1kg
-                                                                       CRATE 09 — [corrupted] — 8.7kg
-                                                                       CRATE 11 — [corrupted] — 31.0kg
-
-                                                                       The rest is unreadable. One line at the bottom is clear:
-                                                                       "CRATE 00 — [no entry] — 0.0kg"""")
-
-        val toolLocker = Interactable("Tool locker", """<html><wrap>A standard-issue crew locker, door hanging open. Whoever left in a hurry
-                                                                            cleaned it out. All that remains is an empty bracket labeled THERMAL
-                                                                            CUTTER and a hook with nothing on it.""")
-
-        val wall = Interactable("Wall","""<html><wrap>Someone has scratched a riddle into the wall near the door — same
-                                                              handwriting as the cell, you think:
-
-                                                              "I CARRY COLD, I FIGHT HEAT.
-                                                              FIND ME IN THE CRATE THAT WEIGHS NOTHING."""")
-
-        val crate4 = Interactable("Crate 1", """<html><wrap>Crate 0 has no clamp — it slides open easily. Inside is a single
-                                                                    object wrapped in insulating foam: a coolant canister, pressurized
-                                                                    and cold to the touch. The weight sticker reads 0.0kg (the canister
-                                                                    is lighter-than-air rated for zero-g environments).
-                                                                    <br><br>
-                                                                    [COOLANT CANISTER added to inventory]""")
-
-        val crate7 = Interactable("Crate 2", """<html><wrap>Sealed tight with a magnetic clamp. The manifest entry is corrupted —
-                                                                    you have no idea what's inside. Heavy, by the look of it.""")
-
-        val crate9 = Interactable("Crate 3", """<html><wrap>Sealed tight with a magnetic clamp. The manifest entry is corrupted —
-                                                                    you have no idea what's inside. Heavy, by the look of it.""")
-
-        val crate11 = Interactable("Crate 7", """<html><wrap>Crate 7 is sealed with a magnetic clamp. You'd need a thermal cutter
-                                                                    to get through it. Ironically, that's exactly what the manifest says
-                                                                    is inside.""")
-
-        val crate0 = Interactable("Crate 00", """Crate 0 has no clamp — it slides open easily. Inside is a single
-                                                                     object wrapped in insulating foam: a coolant canister, pressurized
-                                                                     and cold to the touch. The weight sticker reads 0.0kg (the canister
-                                                                     is lighter-than-air rated for zero-g environments).
-
-                                                                     [COOLANT CANISTER added to inventory]""")
-
-        rooms[2].addInteractable(crates)
-        rooms[2].addInteractable(manifest)
-        rooms[2].addInteractable(toolLocker)
         rooms[2].addInteractable(wall)
-        rooms[2].addInteractable(crate4)
-        rooms[2].addInteractable(crate7)
-        rooms[2].addInteractable(crate9)
-        rooms[2].addInteractable(crate11)
-        rooms[2].addInteractable(crate0)
+
+
 
     }
 
@@ -382,6 +318,7 @@ class App {
     }
 
     fun moveRoom(room: Room) {
+        currentRoom.visited = true
         currentRoom = room
     }
 
@@ -408,7 +345,8 @@ class MainWindow(val app: App) {
     private val examineListModel = DefaultListModel<Interactable>()
     private val examineList = JList(examineListModel)
 
-    private val infoWindow = Puzzle1Window(this, app)
+    private val puzzle1Window = PuzzleWindow(this, app, "312")
+    private val puzzle2Window = PuzzleWindow(this, app, "365")
 
 
     init {
@@ -469,7 +407,6 @@ class MainWindow(val app: App) {
         frame.pack()
         frame.setLocationRelativeTo(null)                   // Centre on the screen
     }
-
     private fun setupActions() {
         exit1Button.addActionListener { handleExit1Click() }
         exit2Button.addActionListener { handleExit2Click() }
@@ -486,8 +423,12 @@ class MainWindow(val app: App) {
 
                     app.currentInteractable = selected
 
-                    if (selected.name == "Panel") {
-                        infoWindow.show()
+                    when (selected.name) {
+                        "Panel" -> puzzle1Window.show()
+
+                        "Console" -> puzzle2Window.show()
+
+                        else -> null
                     }
                 }
             }
@@ -521,6 +462,7 @@ class MainWindow(val app: App) {
 
     fun updateUI() {
         app.canMove = true
+        val exits = app.currentRoom.exits
 
         app.currentRoom.interactables.forEach { interactable ->
             if (interactable.isPuzzle && !interactable.solved)
@@ -528,15 +470,15 @@ class MainWindow(val app: App) {
         }
 
         currentRoomDescLabel.text = app.currentRoom.description
-        exit1Button.text = app.currentRoom.exits[0].name
+        exit1Button.text = if (app.currentRoom.exits.isNotEmpty()) app.currentRoom.exits[0].name else ""
         exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else ""
         exit3Button.text = if (app.currentRoom.exits.size > 2) app.currentRoom.exits[2].name else ""
         exit4Button.text = if (app.currentRoom.exits.size > 3) app.currentRoom.exits[3].name else ""
 
-        exit1Button.isVisible = app.canMove
-        exit2Button.isVisible = app.currentRoom.exits.size > 1
-        exit3Button.isVisible = app.currentRoom.exits.size > 2
-        exit4Button.isVisible = app.currentRoom.exits.size > 3
+        exit1Button.isVisible = exits.isNotEmpty() && (app.canMove || exits[0].visited)
+        exit2Button.isVisible = exits.size > 1 && (app.canMove || exits[1].visited)
+        exit3Button.isVisible = exits.size > 2 && (app.canMove || exits[2].visited)
+        exit4Button.isVisible = exits.size > 3 && (app.canMove || exits[3].visited)
 
         examineListModel.clear()
         app.currentRoom.interactables.forEach { interactable ->
@@ -564,9 +506,10 @@ class MainWindow(val app: App) {
  *
  * @param owner The MainWindow that owns this dialog, used for positioning.
  * @param app   The shared App state object used to check and update puzzle state.
+ * @param code The correct code for the puzzle
  */
-class Puzzle1Window(val owner: MainWindow, val app: App) {
-    private val dialog = JDialog(owner.frame, "MAINTENANCE PANEL", false)
+class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
+    private val dialog = JDialog(owner.frame, "Enter code", false)
     private val panel = JPanel().apply { layout = null }
 
     private val enteredCodeLabel = JLabel("")
@@ -574,10 +517,15 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     private val button1 = JButton("1")
     private val button2 = JButton("2")
     private val button3 = JButton("3")
+    private val button4 = JButton("4")
+    private val button5 = JButton("5")
+    private val button6 = JButton("6")
+    private val button7 = JButton("7")
+    private val button8 = JButton("8")
+    private val button9 = JButton("9")
     private val buttonClr = JButton("CLR")
     private val buttonOK = JButton("OK")
     private var enteredCode = mutableListOf<Int>()
-    private var code = "312"
 
     init {
         setupLayout()
@@ -588,17 +536,23 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     }
 
     private fun setupLayout() {
-        panel.preferredSize = java.awt.Dimension(240, 180)
+        panel.preferredSize = java.awt.Dimension(240, 320)
 
 
-        enteredCodeLabel.setBounds(60, 5, 180, 30)
-        codeFeedbackLabel.setBounds(60, 20, 180, 30)
+        enteredCodeLabel.setBounds(70, 5, 2200, 30)
+        codeFeedbackLabel.setBounds(10, 30, 220, 30)
 
-        button1.setBounds(0, 50, 60, 60)
-        button2.setBounds(60, 50, 60, 60)
-        button3.setBounds(120, 50, 60, 60)
-        buttonClr.setBounds(0, 110, 60, 60)
-        buttonOK.setBounds(80, 110, 60, 60)
+        button1.setBounds(0,   65, 60, 60)
+        button2.setBounds(60,  65, 60, 60)
+        button3.setBounds(120, 65, 60, 60)
+        button4.setBounds(0,   125, 60, 60)
+        button5.setBounds(60,  125, 60, 60)
+        button6.setBounds(120, 125, 60, 60)
+        button7.setBounds(0,   185, 60, 60)
+        button8.setBounds(60,  185, 60, 60)
+        button9.setBounds(120, 185, 60, 60)
+        buttonClr.setBounds(0,   245, 80, 60)
+        buttonOK.setBounds(100, 245, 80, 60)
 
 
         panel.add(enteredCodeLabel)
@@ -606,6 +560,12 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
         panel.add(button1)
         panel.add(button2)
         panel.add(button3)
+        panel.add(button4)
+        panel.add(button5)
+        panel.add(button6)
+        panel.add(button7)
+        panel.add(button8)
+        panel.add(button9)
         panel.add(buttonClr)
         panel.add(buttonOK)
     }
@@ -625,33 +585,26 @@ class Puzzle1Window(val owner: MainWindow, val app: App) {
     }
 
     private fun setupActions() {
-        button1.addActionListener { handle1Click() }
-        button2.addActionListener { handle2Click() }
-        button3.addActionListener { handle3Click() }
+        button1.addActionListener { handleNumClick(1) }
+        button2.addActionListener { handleNumClick(2) }
+        button3.addActionListener { handleNumClick(3) }
+        button4.addActionListener { handleNumClick(4) }
+        button5.addActionListener { handleNumClick(5) }
+        button6.addActionListener { handleNumClick(6) }
+        button7.addActionListener { handleNumClick(7) }
+        button8.addActionListener { handleNumClick(8) }
+        button9.addActionListener { handleNumClick(9) }
         buttonClr.addActionListener { handleClrClick() }
         buttonOK.addActionListener { checkCode() }
     }
 
-    private fun handle1Click() {
-        enteredCode.add(1)
+    private fun handleNumClick(number:Int) {
+        enteredCode.add(number)
         println(enteredCode.toString())
         if (enteredCode.size == 3) checkCode()
         updateUI()
     }
 
-    private fun handle2Click() {
-        enteredCode.add(2)
-        println(enteredCode.toString())
-        if (enteredCode.size == 3) checkCode()
-        updateUI()
-    }
-
-    private fun handle3Click() {
-        enteredCode.add(3)
-        println(enteredCode.toString())
-        if (enteredCode.size == 3) checkCode()
-        updateUI()
-    }
 
     private fun checkCode() {
         println(enteredCode.toString())
