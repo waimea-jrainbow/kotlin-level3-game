@@ -2,6 +2,7 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf
 import java.awt.Color
 import java.awt.Font
 import javax.swing.*
+import javax.xml.crypto.dsig.Manifest
 
 
 /**
@@ -301,9 +302,25 @@ class App {
 
         //Cargo Bay setup
 
-        val wall = Interactable("Wall","""<html><wrap>"""")
+        val manifest = Interactable("Manifest", """<html><wrap>A computer monitor lists the contents of the cargo 
+                                                                       containers stacked around the room.<br>
+                                                                       Crate 1 - Rations<br>
+                                                                       Crate 2 - Medical supplies<br>
+                                                                       Crate 3 - Laser cutter<br>
+                                                                       Crate 4 - Meat substitute™ - Sealed for peak freshness<br>
+                                                                       Crate 5 - Life raft<br>
+                                                                       Crate 6 - Cool Coolant™ - Chill out man 
+                                                                       After this the size of the monitor cuts of the next line.
+                                                                       You can't find a way to scroll down.
+                                                                       """)
 
-        rooms[2].addInteractable(wall)
+        val crate1 = Interactable("Crate1","""<html><wrap>An open crate containing sealed ration packs"""")
+
+        val crate2 = Interactable("Crate 2","""<html><wrap>"""")
+
+
+        rooms[2].addInteractable(manifest)
+        rooms[2].addInteractable(crate1)
 
 
 

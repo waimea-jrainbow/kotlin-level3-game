@@ -4,5 +4,7 @@
 
 - Text change on puzzle completion
 
-- change cell descriptions
+- change cell descriptions and most others
 - make sure visited works and document it
+
+- Update docs eg README
