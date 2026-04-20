@@ -441,7 +441,8 @@ class MainWindow(val app: App) {
                     app.currentInteractable = selected
 
                     when (selected.name) {
-                        "Panel" -> puzzle1Window.show()
+                        "Panel" -> {puzzle1Window.show()
+                                    frame.focusableWindowState = false}
 
                         "Console" -> puzzle2Window.show()
 
@@ -632,6 +633,7 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
                 println(enteredCode.toString())
                 println("correct")
                 dialog.dispose()
+                enteredCode.clear()
             }
             closeTimer.isRepeats = false
             closeTimer.start()

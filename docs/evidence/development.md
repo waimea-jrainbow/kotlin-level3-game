@@ -23,11 +23,18 @@ After
 
 ---
 
-## Date: xx/xx/20xx
+## Date: 20/04/2026
 
-Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes.
+If I enter a code while selected onto a different Interactable
+than the one that activates the code the puzzle isn't solved and 
+so the doors or etc do not open or change
 
-![example.png](screenshots/example.png)
+![dev1NoDoorOnDiffDesc.png](screenshots/dev1NoDoorOnDiffDesc.png)
+
+As seen in above image the code has been entered correctly as circled in white
+but the player has selected the bunk Interactable after opening the panel window 
+as shown in green which means that the puzzle hasn't been marked as completed
+so no doors have opened as circled in red
 
 ---
 
