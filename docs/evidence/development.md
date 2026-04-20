@@ -36,6 +36,15 @@ but the player has selected the bunk Interactable after opening the panel window
 as shown in green which means that the puzzle hasn't been marked as completed
 so no doors have opened as circled in red
 
+### Solution:
+In order to fix this I added a target Interactable to the PuzzleWindow class
+that is at first set to null then I made sure to change mentions of app.currentInteractable
+to targetInteractable and then in the show function in PuzzleWindow I made it accept an Interactable 
+and to make it a local variable of interactable within the variable and then passed in the 
+currentInteractable in when the player clicks on the item in the interactable list
+
+
+
 ---
 
 ## Date: xx/xx/20xx

@@ -441,10 +441,10 @@ class MainWindow(val app: App) {
                     app.currentInteractable = selected
 
                     when (selected.name) {
-                        "Panel" -> {puzzle1Window.show()
+                        "Panel" -> {puzzle1Window.show(selected)
                                     frame.focusableWindowState = false}
 
-                        "Console" -> puzzle2Window.show()
+                        "Console" -> puzzle2Window.show(selected)
 
                         else -> null
                     }
@@ -529,6 +529,8 @@ class MainWindow(val app: App) {
 class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
     private val dialog = JDialog(owner.frame, "Enter code", false)
     private val panel = JPanel().apply { layout = null }
+
+    var targetInteractable: Interactable? = null
 
     private val enteredCodeLabel = JLabel("")
     private var codeFeedbackLabel = JLabel("")
@@ -627,7 +629,7 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
     private fun checkCode() {
         println(enteredCode.toString())
         if (enteredCode.joinToString("") == code) {
-            app.interactableSolved()
+            targetInteractable?.solved = true
             codeStatusText()
             val closeTimer = Timer(900) {
                 println(enteredCode.toString())
@@ -653,17 +655,17 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
 
 
     private fun codeStatusText() {
-        if (app.currentInteractableSolved()) {
+        if (targetInteractable?.solved == true) {
             codeFeedbackLabel.text = "Correct"
             codeFeedbackLabel.foreground = Color.green
         } else {
             codeFeedbackLabel.text = "Incorrect"
             codeFeedbackLabel.foreground = Color.red
         }
-
     }
 
-    fun show() {
+    fun show(interactable: Interactable) {
+        targetInteractable = interactable
         val ownerBounds = owner.frame.bounds          // get location of the main window
         dialog.setLocation(                           // Position next to main window
             ownerBounds.x + ownerBounds.width + 10,
