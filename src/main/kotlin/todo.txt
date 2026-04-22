@@ -1,5 +1,4 @@
 - Fix puzzlewindow docs
-- ID card to inventory - setup inventory for airlock puzzle
 - Star map constellation sketch
 
 - Text change on puzzle completion

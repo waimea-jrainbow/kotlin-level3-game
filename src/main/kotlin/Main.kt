@@ -99,15 +99,27 @@ class App {
     val rooms: MutableList<Room> = mutableListOf()
     var currentInteractable: Interactable? = null
     var canMove = true
+    var inventory: MutableList<String> = mutableListOf()
 
     init {
         setUpRooms()
         setUpInteractables(rooms)
         currentRoom = rooms[0]
         println(currentRoom.name)
+        setupInventoryPlaceholders()
+
     }
 
-    fun setUpRooms() {
+    private fun setupInventoryPlaceholders() {
+        inventory.add(0,"0")
+        inventory.add(1,"1")
+        inventory.add(2,"2")
+        inventory.add(3,"3")
+
+
+    }
+
+    private fun setUpRooms() {
         val cell = Room(
             "Cell 01",
             """<html><wrap>
@@ -158,15 +170,8 @@ class App {
                                    INTAKE, one labeled EXHAUST — each controlled by a large lever on the wall.
                                    Both levers are currently in the OPEN position. A warning light strobes red.
                                    <br>
-                                   On the wall beside the levers, a placard reads:
-                                   !! PLASMA VENT PROTOCOL !!
-                                   NEVER OPEN BOTH SIMULTANEOUSLY.
-                                   ALWAYS CLOSE EXHAUST BEFORE INTAKE.
-                                   FAILURE TO COMPLY WILL RESULT IN CORE OVERLOAD.
-                                   <br>
-                                   A hazard gauge on the reactor face ticks upward: 40%... 41%...
-                                   <br>
-                                   You have maybe two minutes before this gets very bad.<wrap>"""
+                                   There is a placard on the wall beside the levers.
+                                   """
         )
 
         val medBay = Room(
@@ -283,7 +288,8 @@ class App {
 
         val desk = Interactable("Desk", """<html><wrap>A standard-issue guard's desk. Empty coffee bulb, a duty roster you don't
                                                                care about, a personal photo face-down. The top drawer is locked. The
-                                                               bottom drawer slides open inside is a guard ID card"""
+                                                               bottom drawer slides open inside is a guard ID card. You take it. You don't think the 
+                                                               guard will be needing it anytime soon"""
         )
 
         val photo = Interactable("Photo","""<html><wrap>You flip it over. A guard in dress uniform, smiling with a family.
@@ -314,21 +320,43 @@ class App {
                                                                        You can't find a way to scroll down.
                                                                        """)
 
-        val crate1 = Interactable("Crate1","""<html><wrap>An open crate containing sealed ration packs"""")
+        val crate1 = Interactable("Crate 1","""<html><wrap>An open crate containing sealed ration packs. You aren't interested in food right now
+                                                                         and besides you have no way to heat them up.""")
+        val crate2 = Interactable("Crate 2","""<html><wrap>An open crate containing medical supplies. You decide to take a medkit. Just in case""")
 
-        val crate2 = Interactable("Crate 2","""<html><wrap>"""")
+        val crate3 = Interactable("Crate 3", """<html><wrap>An open crate containing a laser cutter. You decide to take it. Just in case.""")
+
+        val crate4 = Interactable("Crate 4","""<html><wrap>A sealed crate labelled with advertising for Meat substitute™. It sounds disgusting. Luckily 
+                                                                          you can't get in.""")
+        val crate5 = Interactable("Crate 5", """<html><wrap>A sealed crate. According to the manifest it contains a life raft. Why you need a life raft in space
+                                                                            and at this point you can't be bothered to find out.""")
+
+        val crate6 = Interactable("Crate 6", """<html><wrap>An open crate. It contains canisters of Cool Coolant™. You decide to take a canister.
+                                                                            Just in case.""")
 
 
         rooms[2].addInteractable(manifest)
         rooms[2].addInteractable(crate1)
+        rooms[2].addInteractable(crate2)
+        rooms[2].addInteractable(crate3)
+        rooms[2].addInteractable(crate4)
+        rooms[2].addInteractable(crate5)
+        rooms[2].addInteractable(crate6)
+
+        // Reactor setup
+
+        val reactorCasing = Interactable("Reactor Casing", """<html><wrap>A dark metal shell covered in scorch marks. It is vibrating angrily.""")
+        val placard = Interactable("Placard", """<html><wrap>!! PLASMA VENT PROTOCOL !!<br>
+                                                                                ONLY QUALIFIED TECHNICIANS WIELDING COOL COOLANT™ ARE TO ATTEMPT<br>
+                                                                                NEVER OPEN INTAKE AND EXHAUST SIMULTANEOUSLY.<br>
+                                                                                ALWAYS CLOSE EXHAUST BEFORE INTAKE.<br>
+                                                                                FAILURE TO COMPLY WILL RESULT IN CORE OVERLOAD.""")
 
 
-
+        rooms[3].addInteractable(reactorCasing)
+        rooms[3].addInteractable(placard)
     }
 
-    fun interactableSolved() {
-        currentInteractable?.solved = true
-    }
 
     fun currentInteractableSolved(): Boolean {
         return currentInteractable?.solved ?: false
@@ -441,10 +469,19 @@ class MainWindow(val app: App) {
                     app.currentInteractable = selected
 
                     when (selected.name) {
-                        "Panel" -> {puzzle1Window.show(selected)
-                                    frame.focusableWindowState = false}
+                        "Panel" -> puzzle1Window.show(selected)
 
                         "Console" -> puzzle2Window.show(selected)
+
+                        "Desk" -> app.inventory[0] = "ID card"
+
+                        "Crate 2" -> app.inventory[1] = "medkit"
+
+                        "Crate 3" -> app.inventory[2] = "laser cutter"
+
+
+
+
 
                         else -> null
                     }
@@ -503,6 +540,8 @@ class MainWindow(val app: App) {
             examineListModel.addElement(interactable)
         }
 
+        println(app.inventory?.get(0))
+
 
     }
 
@@ -527,7 +566,7 @@ class MainWindow(val app: App) {
  * @param code The correct code for the puzzle
  */
 class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
-    private val dialog = JDialog(owner.frame, "Enter code", false)
+    private val dialog = JDialog(owner.frame, "Enter code", true)
     private val panel = JPanel().apply { layout = null }
 
     var targetInteractable: Interactable? = null
