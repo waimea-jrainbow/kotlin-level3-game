@@ -99,25 +99,16 @@ class App {
     val rooms: MutableList<Room> = mutableListOf()
     var currentInteractable: Interactable? = null
     var canMove = true
-    var inventory: MutableList<String> = mutableListOf()
+    var inventory: MutableList<String> = mutableListOf("[__ ____]", "[______]", "[_____ ______]", "")
 
     init {
         setUpRooms()
         setUpInteractables(rooms)
         currentRoom = rooms[0]
         println(currentRoom.name)
-        setupInventoryPlaceholders()
 
     }
 
-    private fun setupInventoryPlaceholders() {
-        inventory.add(0,"0")
-        inventory.add(1,"1")
-        inventory.add(2,"2")
-        inventory.add(3,"3")
-
-
-    }
 
     private fun setUpRooms() {
         val cell = Room(
@@ -169,6 +160,7 @@ class App {
                                    with scorch marks. Two thick conduit pipes run from the base — one labeled
                                    INTAKE, one labeled EXHAUST — each controlled by a large lever on the wall.
                                    Both levers are currently in the OPEN position. A warning light strobes red.
+                                   A large computer monitor flashes a warning symbol casting more red light into the room.
                                    <br>
                                    There is a placard on the wall beside the levers.
                                    """
@@ -301,7 +293,6 @@ class App {
 
         rooms[1].addInteractable(console)
         rooms[1].addInteractable(starMap)
-        rooms[1].addInteractable(desk)
         rooms[1].addInteractable(photo)
         rooms[1].addInteractable(desk)
         rooms[1].addInteractable(doors)
@@ -330,7 +321,6 @@ class App {
                                                                           you can't get in.""")
         val crate5 = Interactable("Crate 5", """<html><wrap>A sealed crate. According to the manifest it contains a life raft. Why you need a life raft in space
                                                                             and at this point you can't be bothered to find out.""")
-
         val crate6 = Interactable("Crate 6", """<html><wrap>An open crate. It contains canisters of Cool Coolant™. You decide to take a canister.
                                                                             Just in case.""")
 
@@ -345,16 +335,21 @@ class App {
 
         // Reactor setup
 
-        val reactorCasing = Interactable("Reactor Casing", """<html><wrap>A dark metal shell covered in scorch marks. It is vibrating angrily.""")
+        val reactorCasing = Interactable("Reactor Casing", """<html><wrap>A dark metal shell covered in scorch marks. It's vibrating angrily.""")
         val placard = Interactable("Placard", """<html><wrap>!! PLASMA VENT PROTOCOL !!<br>
                                                                                 ONLY QUALIFIED TECHNICIANS WIELDING COOL COOLANT™ ARE TO ATTEMPT<br>
                                                                                 NEVER OPEN INTAKE AND EXHAUST SIMULTANEOUSLY.<br>
                                                                                 ALWAYS CLOSE EXHAUST BEFORE INTAKE.<br>
                                                                                 FAILURE TO COMPLY WILL RESULT IN CORE OVERLOAD.""")
+        val computer = Interactable("Computer","""<html><wrap>You try to use the computers keyboard. A loud error sound blasts out of the speakers making you jump back.
+                                                                              You take a few more steps away from the computer and eye it suspiciously.""")
+
+        val exhaust = Interactable("Exhaust lever","""<html><wrap>A large metal lever which will close the exhaust pipe leading out of the reactor core.""",)
 
 
         rooms[3].addInteractable(reactorCasing)
         rooms[3].addInteractable(placard)
+        rooms[3].addInteractable(computer)
     }
 
 
@@ -390,6 +385,9 @@ class MainWindow(val app: App) {
     private val examineListModel = DefaultListModel<Interactable>()
     private val examineList = JList(examineListModel)
 
+    private val inventoryListLabel = JLabel("Inventory:")
+    private val inventoryList = JLabel()
+
     private val puzzle1Window = PuzzleWindow(this, app, "312")
     private val puzzle2Window = PuzzleWindow(this, app, "365")
 
@@ -409,7 +407,7 @@ class MainWindow(val app: App) {
     }
 
     private fun setupLayout() {
-        panel.preferredSize = java.awt.Dimension(600, 700)
+        panel.preferredSize = java.awt.Dimension(650, 700)
 
 
         currentRoomDescLabel.setBounds(30, 0, 300, 300)
@@ -420,6 +418,9 @@ class MainWindow(val app: App) {
         examineListLabel.setBounds(350, 5, 150, 30)
         examineList.setBounds(350, 35, 150, 290)
         examinedInteractableDescLabel.setBounds(30, 420, 450, 160)
+        inventoryListLabel.setBounds(550,5,150,30)
+        inventoryList.setBounds(550, 25, 150, 60)
+
 
         panel.add(currentRoomDescLabel)
         panel.add(exit1Button)
@@ -429,6 +430,8 @@ class MainWindow(val app: App) {
         panel.add(examineListLabel)
         panel.add(examineList)
         panel.add(examinedInteractableDescLabel)
+        panel.add(inventoryListLabel)
+        panel.add(inventoryList)
 
 
     }
@@ -443,6 +446,8 @@ class MainWindow(val app: App) {
         exit4Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         examineListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
         examineList.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+        inventoryListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+        inventoryList.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
     }
 
     private fun setupWindow() {
@@ -473,11 +478,11 @@ class MainWindow(val app: App) {
 
                         "Console" -> puzzle2Window.show(selected)
 
-                        "Desk" -> app.inventory[0] = "ID card"
+                        "Desk" -> app.inventory[0] = "[ID card]"
 
-                        "Crate 2" -> app.inventory[1] = "medkit"
+                        "Crate 2" -> app.inventory[1] = "[Medkit]"
 
-                        "Crate 3" -> app.inventory[2] = "laser cutter"
+                        "Crate 3" -> app.inventory[2] = "[Laser cutter]"
 
 
 
@@ -485,6 +490,7 @@ class MainWindow(val app: App) {
 
                         else -> null
                     }
+                    updateUI()
                 }
             }
         }
@@ -540,7 +546,9 @@ class MainWindow(val app: App) {
             examineListModel.addElement(interactable)
         }
 
-        println(app.inventory?.get(0))
+        inventoryList.text = "<html>" + app.inventory.joinToString("<br>") + "</html>"
+
+        println(app.inventory.joinToString(", "))
 
 
     }
@@ -728,3 +736,4 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
 
 
 }
+

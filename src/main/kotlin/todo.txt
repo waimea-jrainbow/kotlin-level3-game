@@ -7,3 +7,5 @@
 - make sure visited works and document it
 
 - Update docs eg README
+
+- add JLabel to tell user they picked up an item
