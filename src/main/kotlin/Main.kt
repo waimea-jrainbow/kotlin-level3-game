@@ -590,7 +590,7 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
                                                                    [OPEN]""")
     private val buttonIntake = JButton("I")
     private val buttonExhaust = JButton("E")
-    private val buttonClr = JButton("CLR")
+    private val buttonReset = JButton("Reset")
     private var enteredCode = mutableListOf<Int>()
 
     init {
@@ -613,7 +613,7 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
         buttonIntake.setBounds(50,   140, 60, 60)
         buttonExhaust.setBounds(120,  140, 60, 60)
 
-        buttonClr.setBounds(0,   245, 80, 60)
+        buttonReset.setBounds(0,   245, 100, 60)
 
 
 
@@ -622,7 +622,7 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
         panel.add(leverFeedbackLabel2)
         panel.add(buttonIntake)
         panel.add(buttonExhaust)
-        panel.add(buttonClr)
+        panel.add(buttonReset)
     }
 
     private fun setupStyles() {
@@ -640,22 +640,23 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
     private fun setupActions() {
         buttonIntake.addActionListener { handleNumClick(1) }
         buttonExhaust.addActionListener { handleNumClick(2) }
-        buttonClr.addActionListener { handleClrClick() }
+        buttonReset.addActionListener { handleClrClick() }
     }
 
     private fun handleNumClick(state:Int) {
         enteredCode.add(state)
+        leverStatusText(state)
         println(enteredCode.toString())
-        if (enteredCode.size == 2) checkCode()
+        if (enteredCode.size == 2) checkLevers()
         updateUI()
     }
 
 
-    private fun checkCode() {
+    private fun checkLevers() {
         println(enteredCode.toString())
         if (enteredCode.joinToString("") == "21") {
             targetInteractable?.solved = true
-//            codeStatusText()
+
             val closeTimer = Timer(900) {
                 println(enteredCode.toString())
                 println("correct")
@@ -666,7 +667,6 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
             closeTimer.start()
             owner.updateUI()
         } else {
-//            codeStatusText()
             val closeTimer = Timer(900) {
                 enteredCode.clear()
 //                codeFeedbackLabel.text = ""
@@ -676,6 +676,16 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
             closeTimer.start()
         }
 
+    }
+
+    private fun leverStatusText(state: Int) {
+        when (state) {
+            1 -> leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
+                                                                [CLOSED]"""
+
+            2 -> leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
+                                                                [CLOSED]"""
+        }
     }
 
 
