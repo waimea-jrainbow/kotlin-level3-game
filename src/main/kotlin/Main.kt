@@ -336,6 +336,7 @@ class App {
         // Reactor setup
 
         val reactorCasing = Interactable("Reactor Casing", """<html><wrap>A dark metal shell covered in scorch marks. It's vibrating angrily.""")
+
         val placard = Interactable("Placard", """<html><wrap>!! PLASMA VENT PROTOCOL !!<br>
                                                                                 ONLY QUALIFIED TECHNICIANS WIELDING COOL COOLANT™ ARE TO ATTEMPT<br>
                                                                                 NEVER OPEN INTAKE AND EXHAUST SIMULTANEOUSLY.<br>
@@ -344,12 +345,13 @@ class App {
         val computer = Interactable("Computer","""<html><wrap>You try to use the computers keyboard. A loud error sound blasts out of the speakers making you jump back.
                                                                               You take a few more steps away from the computer and eye it suspiciously.""")
 
-        val exhaust = Interactable("Exhaust lever","""<html><wrap>A large metal lever which will close the exhaust pipe leading out of the reactor core.""",)
+        val levers = Interactable("Exhaust & intake levers","""<html><wrap>A pair of large metal levers which will close the exhaust and intake pipes leading in and out of the reactor core.""",true)
 
 
         rooms[3].addInteractable(reactorCasing)
         rooms[3].addInteractable(placard)
         rooms[3].addInteractable(computer)
+        rooms[3].addInteractable(levers)
     }
 
 
@@ -391,6 +393,7 @@ class MainWindow(val app: App) {
     private val puzzle1Window = PuzzleWindow(this, app, "312")
     private val puzzle2Window = PuzzleWindow(this, app, "365")
 
+    private val puzzleWindowreactor = PuzzleWindowreactor(this, app)
 
     init {
         setupLayout()
@@ -484,7 +487,7 @@ class MainWindow(val app: App) {
 
                         "Crate 3" -> app.inventory[2] = "[Laser cutter]"
 
-
+                        "Exhaust & intake levers" -> puzzleWindowreactor.show(selected)
 
 
 
@@ -558,6 +561,150 @@ class MainWindow(val app: App) {
     }
 }
 
+
+/**
+ * A JDialog that presents the maintenance-panel number puzzle to the player.
+ *
+ * The puzzle displays a three-digit code interface with buttons for the digits 1–3,
+ * a clear button, and a confirm button. The correct code is derived from the clues left
+ * in the cell (the vent lights: three ON, one DIM, two OFF → "312"). On correct entry
+ * the dialog closes automatically after a short delay and marks the associated
+ * Interactable as solved via App.interactableSolved, which then allows the player to move
+ * the next room
+ *
+ * @param owner The MainWindow that owns this dialog, used for positioning.
+ * @param app   The shared App state object used to check and update puzzle state.
+ */
+class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
+    private val dialog = JDialog(owner.frame, "Close the levers", true)
+    private val panel = JPanel().apply { layout = null }
+
+    var targetInteractable: Interactable? = null
+    private val reactorGraphic = JLabel("""<html><wrap>==================================<br>
+                                                              ====| I |==| REACTOR |==| E |====<br>
+                                                              =================================<br>""")
+
+    private val leverFeedbackLabel1 = JLabel("""<html><wrap>INTAKE<br>
+                                                                  [OPEN]""")
+    private val leverFeedbackLabel2 = JLabel("""<html><wrap>EXHAUST<br>
+                                                                   [OPEN]""")
+    private val buttonIntake = JButton("I")
+    private val buttonExhaust = JButton("E")
+    private val buttonClr = JButton("CLR")
+    private var enteredCode = mutableListOf<Int>()
+
+    init {
+        setupLayout()
+        setupStyles()
+        setupActions()
+        setupWindow()
+        updateUI()
+    }
+
+    private fun setupLayout() {
+        panel.preferredSize = java.awt.Dimension(240, 320)
+
+        reactorGraphic.setBounds(20, 40, 200, 80)
+
+        leverFeedbackLabel1.setBounds(60, 80, 200, 80)
+        leverFeedbackLabel2.setBounds(120, 80, 200, 80)
+
+
+        buttonIntake.setBounds(50,   140, 60, 60)
+        buttonExhaust.setBounds(120,  140, 60, 60)
+
+        buttonClr.setBounds(0,   245, 80, 60)
+
+
+
+        panel.add(reactorGraphic)
+        panel.add(leverFeedbackLabel1)
+        panel.add(leverFeedbackLabel2)
+        panel.add(buttonIntake)
+        panel.add(buttonExhaust)
+        panel.add(buttonClr)
+    }
+
+    private fun setupStyles() {
+        reactorGraphic.font = Font(Font.DIALOG_INPUT, Font.BOLD, 10)
+
+    }
+
+    private fun setupWindow() {
+        dialog.isResizable = true                              // Can't resize
+        dialog.defaultCloseOperation = JDialog.HIDE_ON_CLOSE    // Hide upon window close
+        dialog.contentPane = panel                              // Main content panel
+        dialog.pack()
+    }
+
+    private fun setupActions() {
+        buttonIntake.addActionListener { handleNumClick(1) }
+        buttonExhaust.addActionListener { handleNumClick(2) }
+        buttonClr.addActionListener { handleClrClick() }
+    }
+
+    private fun handleNumClick(state:Int) {
+        enteredCode.add(state)
+        println(enteredCode.toString())
+        if (enteredCode.size == 2) checkCode()
+        updateUI()
+    }
+
+
+    private fun checkCode() {
+        println(enteredCode.toString())
+        if (enteredCode.joinToString("") == "21") {
+            targetInteractable?.solved = true
+//            codeStatusText()
+            val closeTimer = Timer(900) {
+                println(enteredCode.toString())
+                println("correct")
+                dialog.dispose()
+                enteredCode.clear()
+            }
+            closeTimer.isRepeats = false
+            closeTimer.start()
+            owner.updateUI()
+        } else {
+//            codeStatusText()
+            val closeTimer = Timer(900) {
+                enteredCode.clear()
+//                codeFeedbackLabel.text = ""
+                updateUI()
+            }
+            closeTimer.isRepeats = false
+            closeTimer.start()
+        }
+
+    }
+
+
+
+    fun show(interactable: Interactable) {
+        targetInteractable = interactable
+        val ownerBounds = owner.frame.bounds          // get location of the main window
+        dialog.setLocation(                           // Position next to main window
+            ownerBounds.x + ownerBounds.width + 10,
+            ownerBounds.y
+        )
+
+        if (!app.currentInteractableSolved()) dialog.isVisible = true
+    }
+
+    private fun updateUI() {
+        val codeForDisplay = List(3) { number ->
+            if (number < enteredCode.size) enteredCode[number].toString() else "_"
+        }
+
+    }
+
+    private fun handleClrClick() {
+        enteredCode.clear()
+        updateUI()
+    }
+
+
+}
 
 /**
  * A JDialog that presents the maintenance-panel number puzzle to the player.
@@ -736,4 +883,5 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
 
 
 }
+
 
