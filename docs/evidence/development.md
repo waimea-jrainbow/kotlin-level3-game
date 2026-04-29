@@ -47,11 +47,14 @@ currentInteractable in when the player clicks on the item in the interactable li
 
 ---
 
-## Date: xx/xx/20xx
+## Date: 29/04/2026
 
-Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes. Example description and notes.
+Simplified even further than by removing medbay entirely in order to cut down on
+time required for project
 
-![example.png](screenshots/example.png)
+This means I removed the entry in the rooms list and could remove the 4th button from
+the movement buttons in the main window
+
 
 ---
 

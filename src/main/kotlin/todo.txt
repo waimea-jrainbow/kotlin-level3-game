@@ -9,3 +9,9 @@
 - Update docs eg README
 
 - add JLabel to tell user they picked up an item
+
+- Tell user whats happening reactor
+- Change reactor graphics on state change
+
+
+- CHANGE FLAVOUR TEXT AFTER PUZZLES ARE SOLVED

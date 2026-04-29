@@ -96,10 +96,10 @@ fun main() {
  */
 class App {
     var currentRoom: Room
-    val rooms: MutableList<Room> = mutableListOf()
+    private val rooms: MutableList<Room> = mutableListOf()
     var currentInteractable: Interactable? = null
     var canMove = true
-    var inventory: MutableList<String> = mutableListOf("[__ ____]", "[______]", "[_____ ______]", "")
+    var inventory: MutableList<String> = mutableListOf("[__ ____]", "[______]", "[_____ ______]")
 
     init {
         setUpRooms()
@@ -166,22 +166,6 @@ class App {
                                    """
         )
 
-        val medBay = Room(
-            "MED BAY",
-            """<html>
-                                   MEDICAL BAY — WARD B<br>
-                                   ===================== <br>
-                                   Cool and dim compared to the rest of the station. Two recovery beds are
-                                   bolted to the floor, partitioned by a thin curtain. Medical monitors hum
-                                   above each bed, displaying vitals. One bed is empty. The other is occupied.
-                                   <br><br>
-                                   A figure stirs as you enter — a prisoner, like you, in the same grey
-                                   jumpsuit. One arm is in a makeshift splint. They look at you with
-                                   exhausted, cautious eyes.
-                                   <br><br>
-                                   DR. YARA SONG (it says on a faded name tag, though the title seems
-                                   optimistic given the surroundings) says nothing at first. Just watches.<wrap><html>"""
-        )
 
         val airLock = Room(
             "AIR LOCK",
@@ -189,39 +173,45 @@ class App {
                                    AIRLOCK — DOCKING RING 3
                                    ========================= <br>
                                    A heavy pressure door dominates the far wall, its surface scratched and
-                                   dented from years of use. Beside it: a biometric scanner, dark and
+                                   dented from years of use. Beside it: a biometric scanner with a smashed screen, dark and
                                    inert. On the near wall, a manual override panel sits behind a sealed
-                                   metal plate, its edges fused — someone welded it shut deliberately.
+                                   metal plate, its edges fused, someone welded it shut deliberately.
+                                   There's a large sign on the other side of the door.
                                    A small porthole to the right shows open space: stars, and the dim
                                    shape of a drifting salvage shuttle about two hundred meters out.
 
                                    The scanner is dark. The override panel is inaccessible.
                                    You're close. Not there yet.</html>"""
         )
+
+        val exit = Room(
+            "Salvage shuttle, escape", """The airlock door slowly grinds open and you step in. The door closes behind you and another opens and you climb inside of the salvage shuttle. 
+                   you power up its engines and make your escape.
+                   
+                   Congratulations you escaped!!!
+            """)
+
         rooms.add(cell)
         rooms.add(guardRoom)
         rooms.add(cargoBay)
         rooms.add(reactorRoom)
-        rooms.add(medBay)
         rooms.add(airLock)
+        rooms.add(exit)
 
         cell.addExit(guardRoom)
 
         guardRoom.addExit(cell)
         guardRoom.addExit(cargoBay)
         guardRoom.addExit(reactorRoom)
-        guardRoom.addExit(medBay)
 
         cargoBay.addExit(guardRoom)
 
         reactorRoom.addExit(guardRoom)
         reactorRoom.addExit(airLock)
 
-        medBay.addExit(guardRoom)
-        medBay.addExit(airLock)
-
         airLock.addExit(reactorRoom)
-        airLock.addExit(medBay)
+        airLock.addExit(exit)
+
 
 
     }
@@ -248,8 +238,6 @@ class App {
             "Panel", """<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
             3-digit keypad with a magnetic lock. If you could open this...""", true
         )
-
-
 
 
         rooms[0].addInteractable(bunk)
@@ -313,14 +301,17 @@ class App {
 
         val crate1 = Interactable("Crate 1","""<html><wrap>An open crate containing sealed ration packs. You aren't interested in food right now
                                                                          and besides you have no way to heat them up.""")
+
         val crate2 = Interactable("Crate 2","""<html><wrap>An open crate containing medical supplies. You decide to take a medkit. Just in case""")
 
         val crate3 = Interactable("Crate 3", """<html><wrap>An open crate containing a laser cutter. You decide to take it. Just in case.""")
 
         val crate4 = Interactable("Crate 4","""<html><wrap>A sealed crate labelled with advertising for Meat substitute™. It sounds disgusting. Luckily 
                                                                           you can't get in.""")
+
         val crate5 = Interactable("Crate 5", """<html><wrap>A sealed crate. According to the manifest it contains a life raft. Why you need a life raft in space
                                                                             and at this point you can't be bothered to find out.""")
+
         val crate6 = Interactable("Crate 6", """<html><wrap>An open crate. It contains canisters of Cool Coolant™. You decide to take a canister.
                                                                             Just in case.""")
 
@@ -342,6 +333,7 @@ class App {
                                                                                 NEVER OPEN INTAKE AND EXHAUST SIMULTANEOUSLY.<br>
                                                                                 ALWAYS CLOSE EXHAUST BEFORE INTAKE.<br>
                                                                                 FAILURE TO COMPLY WILL RESULT IN CORE OVERLOAD.""")
+
         val computer = Interactable("Computer","""<html><wrap>You try to use the computers keyboard. A loud error sound blasts out of the speakers making you jump back.
                                                                               You take a few more steps away from the computer and eye it suspiciously.""")
 
@@ -352,6 +344,16 @@ class App {
         rooms[3].addInteractable(placard)
         rooms[3].addInteractable(computer)
         rooms[3].addInteractable(levers)
+
+        val airlockDoor = Interactable("Airlock door", """<html><wrap>blep""")
+
+        val biometricScanner = Interactable("Biometric scanner", """<html><wrap>You tap the screen, it blazes to life for all of about a second 
+                                                                                     before fizzling out and producing a few sparks.""")
+
+        val overridePanel
+
+        rooms[4].addInteractable(airlockDoor)
+        rooms[4].addInteractable(biometricScanner)
     }
 
 
@@ -590,8 +592,9 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
                                                                    [OPEN]""")
     private val buttonIntake = JButton("I")
     private val buttonExhaust = JButton("E")
-    private val buttonClr = JButton("CLR")
+    private val buttonReset = JButton("Reset")
     private var enteredCode = mutableListOf<Int>()
+    private val reactorStatus = JLabel("Unsafe")
 
     init {
         setupLayout()
@@ -606,14 +609,16 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
 
         reactorGraphic.setBounds(20, 40, 200, 80)
 
-        leverFeedbackLabel1.setBounds(60, 80, 200, 80)
-        leverFeedbackLabel2.setBounds(120, 80, 200, 80)
+        leverFeedbackLabel1.setBounds(60, 100, 200, 80)
+        leverFeedbackLabel2.setBounds(120, 100, 200, 80)
 
 
-        buttonIntake.setBounds(50,   140, 60, 60)
-        buttonExhaust.setBounds(120,  140, 60, 60)
+        buttonIntake.setBounds(50,   180, 60, 60)
+        buttonExhaust.setBounds(120,  180, 60, 60)
 
-        buttonClr.setBounds(0,   245, 80, 60)
+        buttonReset.setBounds(0,   245, 100, 60)
+
+        reactorStatus.setBounds(100,80,60,60)
 
 
 
@@ -622,11 +627,14 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
         panel.add(leverFeedbackLabel2)
         panel.add(buttonIntake)
         panel.add(buttonExhaust)
-        panel.add(buttonClr)
+        panel.add(buttonReset)
+        panel.add(reactorStatus)
     }
 
     private fun setupStyles() {
         reactorGraphic.font = Font(Font.DIALOG_INPUT, Font.BOLD, 10)
+
+        reactorStatus.foreground =  Color.red
 
     }
 
@@ -640,42 +648,73 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
     private fun setupActions() {
         buttonIntake.addActionListener { handleNumClick(1) }
         buttonExhaust.addActionListener { handleNumClick(2) }
-        buttonClr.addActionListener { handleClrClick() }
+        buttonReset.addActionListener { handleClrClick() }
     }
 
     private fun handleNumClick(state:Int) {
         enteredCode.add(state)
+        leverStatusText(state)
         println(enteredCode.toString())
-        if (enteredCode.size == 2) checkCode()
+        if (enteredCode.size == 2) checkLevers()
         updateUI()
     }
 
 
-    private fun checkCode() {
+    private fun checkLevers() {
         println(enteredCode.toString())
         if (enteredCode.joinToString("") == "21") {
             targetInteractable?.solved = true
-//            codeStatusText()
+            reactorStatus()
+
             val closeTimer = Timer(900) {
                 println(enteredCode.toString())
                 println("correct")
                 dialog.dispose()
                 enteredCode.clear()
+
             }
             closeTimer.isRepeats = false
             closeTimer.start()
             owner.updateUI()
         } else {
-//            codeStatusText()
             val closeTimer = Timer(900) {
                 enteredCode.clear()
-//                codeFeedbackLabel.text = ""
+                reactorStatus()
                 updateUI()
             }
             closeTimer.isRepeats = false
             closeTimer.start()
         }
 
+    }
+
+    private fun reactorStatus() {
+        if (targetInteractable?.solved == true) {
+            reactorStatus.text = "Safe"
+            reactorStatus.foreground = Color.green
+
+        }
+        else {
+            reactorStatus.text = "Unsafe"
+            reactorStatus.foreground = Color.red
+            leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
+                                                      [OPEN]"""
+            leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
+                                                      [OPEN]"""
+
+
+        }
+
+    }
+
+    private fun leverStatusText(state: Int) {
+        when (state) {
+            1 -> leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
+                                                                [CLOSED]"""
+
+            2 -> leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
+                                                                [CLOSED]"""
+        }
     }
 
 
