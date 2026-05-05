@@ -350,10 +350,13 @@ class App {
         val biometricScanner = Interactable("Biometric scanner", """<html><wrap>You tap the screen, it blazes to life for all of about a second 
                                                                                      before fizzling out and producing a few sparks.""")
 
-        val overridePanel
+        val overridePanel = Interactable("Override panel", """<html><wrap>A panel labelled OVERRIDE. 
+                                                                                              The edges are fused shut — someone welded this deliberately. 
+                                                                                              A laser cutter could get through that.""", true)
 
         rooms[4].addInteractable(airlockDoor)
         rooms[4].addInteractable(biometricScanner)
+        rooms[4].addInteractable(overridePanel)
     }
 
 
@@ -396,6 +399,8 @@ class MainWindow(val app: App) {
     private val puzzle2Window = PuzzleWindow(this, app, "365")
 
     private val puzzleWindowreactor = PuzzleWindowreactor(this, app)
+
+    private val puzzleWindowOverride = PuzzleWindowOverride(this, app)
 
     init {
         setupLayout()
@@ -490,6 +495,8 @@ class MainWindow(val app: App) {
                         "Crate 3" -> app.inventory[2] = "[Laser cutter]"
 
                         "Exhaust & intake levers" -> puzzleWindowreactor.show(selected)
+
+                        "Override panel" -> puzzleWindowOverride.show(selected)
 
 
 
@@ -923,4 +930,120 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
 
 }
 
+class PuzzleWindowOverride(val owner: MainWindow, val app: App) {
+    private val dialog = JDialog(owner.frame, "Override Panel", true)
+    private val panel = JPanel().apply { layout = null }
 
+    var targetInteractable: Interactable? = null
+
+    private val statusLabel = JLabel("")
+    private val actionButton = JButton()
+    private val feedbackLabel = JLabel("")
+
+    // Tracks progress: 0 = nothing done, 1 = cut open, 2 = solved
+    private var stage = 0
+
+    init {
+        setupLayout()
+        setupStyles()
+        setupActions()
+        setupWindow()
+    }
+
+    private fun setupLayout() {
+        panel.preferredSize = java.awt.Dimension(280, 200)
+
+        statusLabel.setBounds(20, 10, 240, 80)
+        actionButton.setBounds(20, 100, 240, 50)
+        feedbackLabel.setBounds(20, 155, 240, 30)
+
+        panel.add(statusLabel)
+        panel.add(actionButton)
+        panel.add(feedbackLabel)
+    }
+
+    private fun setupStyles() {
+        statusLabel.font = Font(Font.DIALOG_INPUT, Font.PLAIN, 12)
+        actionButton.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+        feedbackLabel.font = Font(Font.DIALOG_INPUT, Font.PLAIN, 12)
+    }
+
+    private fun setupWindow() {
+        dialog.isResizable = false
+        dialog.defaultCloseOperation = JDialog.HIDE_ON_CLOSE
+        dialog.contentPane = panel
+        dialog.pack()
+    }
+
+    private fun setupActions() {
+        actionButton.addActionListener { handleActionClick() }
+    }
+
+    private fun handleActionClick() {
+        when (stage) {
+            0 -> { // Need laser cutter to cut the panel open
+                if (app.inventory.contains("[Laser cutter]")) {
+                    stage = 1
+                    feedbackLabel.text = "Panel cut open."
+                    feedbackLabel.foreground = Color.green
+                } else {
+                    feedbackLabel.text = "You need something to cut with."
+                    feedbackLabel.foreground = Color.red
+                }
+            }
+            1 -> { // Need ID card to activate the terminal
+                if (app.inventory.contains("[ID card]")) {
+                    stage = 2
+                    targetInteractable?.solved = true
+                    feedbackLabel.text = "Access granted."
+                    feedbackLabel.foreground = Color.green
+                    val closeTimer = Timer(900) {
+                        dialog.dispose()
+                        owner.updateUI()
+                    }
+                    closeTimer.isRepeats = false
+                    closeTimer.start()
+                    owner.updateUI()
+                } else {
+                    feedbackLabel.text = "The terminal needs an ID card."
+                    feedbackLabel.foreground = Color.red
+                }
+            }
+        }
+        updateUI()
+    }
+
+    fun show(interactable: Interactable) {
+        targetInteractable = interactable
+        // Sync stage with solved state if returning to already-solved puzzle
+        if (interactable.solved) stage = 2
+
+        feedbackLabel.text = ""
+        updateUI()
+
+        val ownerBounds = owner.frame.bounds
+        dialog.setLocation(
+            ownerBounds.x + ownerBounds.width + 10,
+            ownerBounds.y
+        )
+
+        if (!app.currentInteractableSolved()) dialog.isVisible = true
+    }
+
+    private fun updateUI() {
+        when (stage) {
+            0 -> {
+                statusLabel.text = "<html>The panel edges are fused shut.<br>You'll need a laser cutter to get through.</html>"
+                actionButton.text = "Cut panel open"
+            }
+            1 -> {
+                statusLabel.text = "<html>The panel is open. A terminal blinks underneath.<br>It's waiting for an ID card.</html>"
+                actionButton.text = "Use ID card"
+            }
+            2 -> {
+                statusLabel.text = "<html>The override terminal is active.<br>The airlock unseals with a heavy clunk.</html>"
+                actionButton.isEnabled = false
+            }
+        }
+    }
+}
