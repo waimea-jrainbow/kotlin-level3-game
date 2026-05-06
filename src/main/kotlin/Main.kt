@@ -2,14 +2,13 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf
 import java.awt.Color
 import java.awt.Font
 import javax.swing.*
-import javax.xml.crypto.dsig.Manifest
 
 
 /**
  * Represents an object within a Room that the player can examine or interact with.
  *
- * Interactables may be objects with descriptions (e.g. a bunk or a door) or puzzle
- * objects that must be solved before the player can progress. Each interactable tracks
+ * Interactable may be an object with descriptions (e.g. a bunk or a door) or a puzzle
+ * object that must be solved before the player can progress. Each interactable tracks
  * whether it has been examined and, if it is a puzzle, whether it has been solved.
  *
  * @property name        A short display name shown in the examine list (e.g. "Bunk", "Panel").
@@ -22,14 +21,9 @@ class Interactable(
     val description: String,
     val isPuzzle: Boolean = false
 ) {
-    private var examined: Boolean = false
     var solved = false
 
-    fun examine() {
-        examined = true
-    }
-
-    override fun toString() = name
+    override fun toString() = name // When toString() is used on an interactable its name will be returned
 }
 
 /**
@@ -42,6 +36,7 @@ class Interactable(
  * @property name          The short display name of the room (e.g. "GUARD STATION").
  * @property description   The description shown to the player upon entering.
  * @property interactables The mutable list of objects present in the room.
+ * @property visited       The boolean that tracks whether this room has been visited before
  */
 class Room(
     val name: String,
@@ -51,6 +46,7 @@ class Room(
 
 
 ) {
+    // Making the exits list
     val exits: MutableList<Room> = mutableListOf()
 
 
@@ -93,14 +89,20 @@ fun main() {
  *                                or `null` if none has been selected yet.
  * @property canMove              Whether the player is currently allowed to move between
  *                                rooms. Set to `false` while an unsolved puzzle blocks exit.
+ * @property inventory            The mutable list of empty inventory slots that get filled as items are
+ *                                collected
  */
 class App {
     var currentRoom: Room
     private val rooms: MutableList<Room> = mutableListOf()
     var currentInteractable: Interactable? = null
     var canMove = true
-    var inventory: MutableList<String> = mutableListOf("[__ ____]", "[______]", "[_____ ______]")
+    var inventory: MutableList<String> = mutableListOf("[_______]", "[______]", "[____________]")
 
+    /**
+     * Initializes the game by running all setup functions and setting the current room to thr room in the
+     * first index of the rooms list
+     */
     init {
         setUpRooms()
         setUpInteractables(rooms)
@@ -109,7 +111,12 @@ class App {
 
     }
 
-
+    /**
+     * Function that sets up all the rooms with their names and descriptions
+     * and then adds them to the rooms list.
+     *
+     * Adds rooms to the exits list of each room to allow movement between them
+     */
     private fun setUpRooms() {
         val cell = Room(
             "Cell 01",
@@ -191,6 +198,7 @@ class App {
                    Congratulations you escaped!!!
             """)
 
+        //Add all the rooms to the rooms list
         rooms.add(cell)
         rooms.add(guardRoom)
         rooms.add(cargoBay)
@@ -198,6 +206,7 @@ class App {
         rooms.add(airLock)
         rooms.add(exit)
 
+        //Add the exits to each rooms exits list
         cell.addExit(guardRoom)
 
         guardRoom.addExit(cell)
@@ -216,7 +225,14 @@ class App {
 
     }
 
+    /**
+     * Function that sets up all the interactables with their names, descriptions and if they are a puzzle or not
+     * and then adds them to the relevant rooms interactables list.
+     *
+     * @param rooms The mutable list of rooms which contains all rooms in the map
+     */
     private fun setUpInteractables(rooms: MutableList<Room>) {
+
         // Cell setup
         val bunk = Interactable(
             "Bunk",
@@ -360,13 +376,23 @@ class App {
     }
 
 
+    /**
+     * Function to check whether the current interactable has been solved
+     *
+     * @return Whether the interactable has been solved
+     */
     fun currentInteractableSolved(): Boolean {
         return currentInteractable?.solved ?: false
     }
 
-    fun moveRoom(room: Room) {
+    /**
+     *  Function to move the player to a new room
+     *
+     *  @param newRoom the new room the player is moving too
+     */
+    fun moveRoom(newRoom: Room) {
         currentRoom.visited = true
-        currentRoom = room
+        currentRoom = newRoom
     }
 
 }
@@ -377,7 +403,7 @@ class App {
  *
  * @param app The shared App state object that this window reads from and writes to.
  */
-class MainWindow(val app: App) {
+class MainWindow(private val app: App) {
     val frame = JFrame("Space escape")
     private val panel = JPanel().apply { layout = null }
 
@@ -398,7 +424,7 @@ class MainWindow(val app: App) {
     private val puzzle1Window = PuzzleWindow(this, app, "312")
     private val puzzle2Window = PuzzleWindow(this, app, "365")
 
-    private val puzzleWindowreactor = PuzzleWindowreactor(this, app)
+    private val puzzleWindowReactor = PuzzleWindowReactor(this, app)
 
     private val puzzleWindowOverride = PuzzleWindowOverride(this, app)
 
@@ -416,9 +442,11 @@ class MainWindow(val app: App) {
         updateUI()
     }
 
+    /**
+     * Set up the layout of all elements in the window and then add them to the panel
+     */
     private fun setupLayout() {
         panel.preferredSize = java.awt.Dimension(650, 700)
-
 
         currentRoomDescLabel.setBounds(30, 0, 300, 300)
         exit1Button.setBounds(30, 350, 100, 50)
@@ -446,6 +474,9 @@ class MainWindow(val app: App) {
 
     }
 
+    /**
+     * Set up styling for all elements that need it
+     */
     private fun setupStyles() {
 
         currentRoomDescLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
@@ -464,49 +495,51 @@ class MainWindow(val app: App) {
         frame.isResizable = true                         // Can't resize
         frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE  // Exit upon window close
         frame.contentPane = panel                           // Define the main content
-        frame.pack()
+        frame.pack()                                        // Size the window based on components
         frame.setLocationRelativeTo(null)                   // Centre on the screen
     }
+
+    /**
+     * Set up the actions of buttons and other similar elements
+     */
     private fun setupActions() {
         exit1Button.addActionListener { handleExit1Click() }
         exit2Button.addActionListener { handleExit2Click() }
         exit3Button.addActionListener { handleExit3Click() }
-        exit4Button.addActionListener { handleExit4Click() }
 
-        examineList.addListSelectionListener { event ->
-            if (!event.valueIsAdjusting) {
-                val selected = examineList.selectedValue
+        examineList.addListSelectionListener { event -> // Check for a change in selection in the list
+            if (!event.valueIsAdjusting) { // Ensure the listener only fires when the selection is changed
+                val selected = examineList.selectedValue // Compare the selected value to the list of interactables for the room
                 if (selected != null) {
-                    examinedInteractableDescLabel.text = selected.description
-                    selected.examine()
-                    examineList.clearSelection()
+                    examinedInteractableDescLabel.text = selected.description // Change the description currently displayed to the selected interactable
 
-                    app.currentInteractable = selected
+                    app.currentInteractable = selected // Change the current interactable to the selected one
 
+                    // Check whether the interactable has an associated action
                     when (selected.name) {
-                        "Panel" -> puzzle1Window.show(selected)
+                        "Panel" -> puzzle1Window.show(selected) // Show the puzzle dialog
 
                         "Console" -> puzzle2Window.show(selected)
 
-                        "Desk" -> app.inventory[0] = "[ID card]"
+                        "Desk" -> app.inventory[0] = "[ID card]" // Add the relevant item to the inventory
 
                         "Crate 2" -> app.inventory[1] = "[Medkit]"
 
                         "Crate 3" -> app.inventory[2] = "[Laser cutter]"
 
-                        "Exhaust & intake levers" -> puzzleWindowreactor.show(selected)
+                        "Exhaust & intake levers" -> puzzleWindowReactor.show(selected)
 
                         "Override panel" -> puzzleWindowOverride.show(selected)
 
 
 
-                        else -> null
                     }
                     updateUI()
                 }
             }
         }
     }
+
 
     private fun handleExit1Click() {
         app.moveRoom(app.currentRoom.exits[0])       // Update the app state
@@ -515,8 +548,8 @@ class MainWindow(val app: App) {
     }
 
     private fun handleExit2Click() {
-        app.moveRoom(app.currentRoom.exits[1])       // Update the app state
-        updateUI()                  // Update this window UI to reflect this
+        app.moveRoom(app.currentRoom.exits[1])
+        updateUI()
         println(app.currentRoom.name)
     }
 
@@ -526,36 +559,31 @@ class MainWindow(val app: App) {
         println(app.currentRoom.name)
     }
 
-    private fun handleExit4Click() {
-        app.moveRoom(app.currentRoom.exits[3])
-        updateUI()
-        println(app.currentRoom.name)
-    }
 
 
     fun updateUI() {
         app.canMove = true
-        val exits = app.currentRoom.exits
+        val exits = app.currentRoom.exits // Get the current rooms exits
 
+        // Check if all puzzles in the current room are solved, if not then set canMove to false
         app.currentRoom.interactables.forEach { interactable ->
             if (interactable.isPuzzle && !interactable.solved)
                 app.canMove = false
         }
 
         currentRoomDescLabel.text = app.currentRoom.description
-        exit1Button.text = if (app.currentRoom.exits.isNotEmpty()) app.currentRoom.exits[0].name else ""
-        exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else ""
-        exit3Button.text = if (app.currentRoom.exits.size > 2) app.currentRoom.exits[2].name else ""
-        exit4Button.text = if (app.currentRoom.exits.size > 3) app.currentRoom.exits[3].name else ""
+        exit1Button.text = if (app.currentRoom.exits.isNotEmpty()) app.currentRoom.exits[0].name else "" // Check if there is any exit to the current room available, if there is set the label to the exit name
+        exit2Button.text = if (app.currentRoom.exits.size > 1) app.currentRoom.exits[1].name else "" // Check if there is more than 1 exit, if there is set the label to the exit name
+        exit3Button.text = if (app.currentRoom.exits.size > 2) app.currentRoom.exits[2].name else "" //  Check if there is more than 2 exits, if there is set the label to the exit name
 
-        exit1Button.isVisible = exits.isNotEmpty() && (app.canMove || exits[0].visited)
-        exit2Button.isVisible = exits.size > 1 && (app.canMove || exits[1].visited)
-        exit3Button.isVisible = exits.size > 2 && (app.canMove || exits[2].visited)
-        exit4Button.isVisible = exits.size > 3 && (app.canMove || exits[3].visited)
 
-        examineListModel.clear()
+        exit1Button.isVisible = exits.isNotEmpty() && (app.canMove || exits[0].visited) // If there is an exit and the player can move or the previous room has already been visited make the button visible
+        exit2Button.isVisible = exits.size > 1 && (app.canMove || exits[1].visited) // If there is more than 1 exit and the player can move or the previous room has already been visited make the button visible
+        exit3Button.isVisible = exits.size > 2 && (app.canMove || exits[2].visited) // If there is more than 2 exits and the player can move or the previous room has already been visited make the button visible
+
+        examineListModel.clear() // Clear the examine list
         app.currentRoom.interactables.forEach { interactable ->
-            examineListModel.addElement(interactable)
+            examineListModel.addElement(interactable) // Fill the examine list
         }
 
         inventoryList.text = "<html>" + app.inventory.joinToString("<br>") + "</html>"
@@ -574,21 +602,19 @@ class MainWindow(val app: App) {
 /**
  * A JDialog that presents the maintenance-panel number puzzle to the player.
  *
- * The puzzle displays a three-digit code interface with buttons for the digits 1–3,
- * a clear button, and a confirm button. The correct code is derived from the clues left
- * in the cell (the vent lights: three ON, one DIM, two OFF → "312"). On correct entry
- * the dialog closes automatically after a short delay and marks the associated
- * Interactable as solved via App.interactableSolved, which then allows the player to move
- * the next room
+ * The puzzle displays a reactor interface with 2 buttons to close 2 valves
+ * when the correct order of valves is closed the dialog closes automatically
+ * after a short delay and marks the associated Interactable as solved via
+ * App.interactableSolved, which then allows the player to move the next room
  *
  * @param owner The MainWindow that owns this dialog, used for positioning.
  * @param app   The shared App state object used to check and update puzzle state.
  */
-class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
+class PuzzleWindowReactor(private val owner: MainWindow, private val app: App) {
     private val dialog = JDialog(owner.frame, "Close the levers", true)
     private val panel = JPanel().apply { layout = null }
 
-    var targetInteractable: Interactable? = null
+    private var targetInteractable: Interactable? = null
     private val reactorGraphic = JLabel("""<html><wrap>==================================<br>
                                                               ====| I |==| REACTOR |==| E |====<br>
                                                               =================================<br>""")
@@ -653,25 +679,29 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
     }
 
     private fun setupActions() {
-        buttonIntake.addActionListener { handleNumClick(1) }
-        buttonExhaust.addActionListener { handleNumClick(2) }
+        buttonIntake.addActionListener { handleLeverClick(1) }
+        buttonExhaust.addActionListener { handleLeverClick(2) }
         buttonReset.addActionListener { handleClrClick() }
     }
 
-    private fun handleNumClick(state:Int) {
-        enteredCode.add(state)
-        leverStatusText(state)
+
+
+    private fun handleLeverClick(lever:Int) {
+        enteredCode.add(lever)
+        leverStatusText(lever)
         println(enteredCode.toString())
         if (enteredCode.size == 2) checkLevers()
         updateUI()
     }
 
-
+    /**
+     * Check whether the levers were flipped in the right order and handle what happens if it is correct
+     */
     private fun checkLevers() {
         println(enteredCode.toString())
         if (enteredCode.joinToString("") == "21") {
             targetInteractable?.solved = true
-            reactorStatus()
+            updateUI()
 
             val closeTimer = Timer(900) {
                 println(enteredCode.toString())
@@ -686,7 +716,6 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
         } else {
             val closeTimer = Timer(900) {
                 enteredCode.clear()
-                reactorStatus()
                 updateUI()
             }
             closeTimer.isRepeats = false
@@ -695,24 +724,6 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
 
     }
 
-    private fun reactorStatus() {
-        if (targetInteractable?.solved == true) {
-            reactorStatus.text = "Safe"
-            reactorStatus.foreground = Color.green
-
-        }
-        else {
-            reactorStatus.text = "Unsafe"
-            reactorStatus.foreground = Color.red
-            leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
-                                                      [OPEN]"""
-            leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
-                                                      [OPEN]"""
-
-
-        }
-
-    }
 
     private fun leverStatusText(state: Int) {
         when (state) {
@@ -738,10 +749,21 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
     }
 
     private fun updateUI() {
-        val codeForDisplay = List(3) { number ->
-            if (number < enteredCode.size) enteredCode[number].toString() else "_"
-        }
+        if (targetInteractable?.solved == true) {
+            reactorStatus.text = "Safe"
+            reactorStatus.foreground = Color.green
 
+        }
+        else {
+            reactorStatus.text = "Unsafe"
+            reactorStatus.foreground = Color.red
+            leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
+                                                      [OPEN]"""
+            leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
+                                                      [OPEN]"""
+
+
+        }
     }
 
     private fun handleClrClick() {
@@ -753,12 +775,11 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
 }
 
 /**
- * A JDialog that presents the maintenance-panel number puzzle to the player.
+ * A JDialog that presents a panel number puzzle to the player.
  *
- * The puzzle displays a three-digit code interface with buttons for the digits 1–3,
- * a clear button, and a confirm button. The correct code is derived from the clues left
- * in the cell (the vent lights: three ON, one DIM, two OFF → "312"). On correct entry
- * the dialog closes automatically after a short delay and marks the associated
+ * The puzzle displays a nine-digit code interface with buttons for the digits 1–9,
+ * a clear button, and a confirm button. On correct entry the dialog closes automatically
+ * after a short delay and marks the associated
  * Interactable as solved via App.interactableSolved, which then allows the player to move
  * the next room
  *
@@ -766,11 +787,11 @@ class PuzzleWindowreactor(val owner: MainWindow, val app: App) {
  * @param app   The shared App state object used to check and update puzzle state.
  * @param code The correct code for the puzzle
  */
-class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
+class PuzzleWindow(private val owner: MainWindow, private val app: App, private val code:String) {
     private val dialog = JDialog(owner.frame, "Enter code", true)
     private val panel = JPanel().apply { layout = null }
 
-    var targetInteractable: Interactable? = null
+    private var targetInteractable: Interactable? = null
 
     private val enteredCodeLabel = JLabel("")
     private var codeFeedbackLabel = JLabel("")
@@ -858,14 +879,18 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
         buttonOK.addActionListener { checkCode() }
     }
 
+    /**
+     * Function to handle input of a number
+     */
     private fun handleNumClick(number:Int) {
         enteredCode.add(number)
         println(enteredCode.toString())
-        if (enteredCode.size == 3) checkCode()
         updateUI()
     }
 
-
+    /**
+     * Function to check if the entered code is correct
+     */
     private fun checkCode() {
         println(enteredCode.toString())
         if (enteredCode.joinToString("") == code) {
@@ -877,18 +902,20 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
                 dialog.dispose()
                 enteredCode.clear()
             }
+            // start a timer that only fires once to trigger the closing of the window
             closeTimer.isRepeats = false
             closeTimer.start()
             owner.updateUI()
         } else {
             codeStatusText()
-            val closeTimer = Timer(900) {
+            val statusClearTimer = Timer(1000) {
                 enteredCode.clear()
                 codeFeedbackLabel.text = ""
                 updateUI()
             }
-            closeTimer.isRepeats = false
-            closeTimer.start()
+            // start a timer that only fires once to trigger removal if "Incorrect" label
+            statusClearTimer.isRepeats = false
+            statusClearTimer.start()
         }
 
     }
@@ -915,7 +942,10 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
         if (!app.currentInteractableSolved()) dialog.isVisible = true
     }
 
+
     private fun updateUI() {
+
+        // Shows the currently entered code seperated by - and empty spaces as _
         val codeForDisplay = List(3) { number ->
             if (number < enteredCode.size) enteredCode[number].toString() else "_"
         }
@@ -930,11 +960,21 @@ class PuzzleWindow(val owner: MainWindow, val app: App, val code:String) {
 
 }
 
-class PuzzleWindowOverride(val owner: MainWindow, val app: App) {
+/**
+ * A JDialog that presents the override panel puzzle to the player.
+ *
+ * The puzzle displays a description of the faced obstacle and asks the user if they have the right item for the job
+ * if they don't present the next obstacle. Once puzzle is solved marks the associated Interactable as solved via
+ * App.interactableSolved, which then allows the player to go through the exit and finish the game
+ *
+ * @param owner The MainWindow that owns this dialog, used for positioning.
+ * @param app   The shared App state object used to check and update puzzle state.
+ */
+class PuzzleWindowOverride(private val owner: MainWindow, private val app: App) {
     private val dialog = JDialog(owner.frame, "Override Panel", true)
     private val panel = JPanel().apply { layout = null }
 
-    var targetInteractable: Interactable? = null
+    private var targetInteractable: Interactable? = null
 
     private val statusLabel = JLabel("")
     private val actionButton = JButton()
@@ -1015,10 +1055,7 @@ class PuzzleWindowOverride(val owner: MainWindow, val app: App) {
 
     fun show(interactable: Interactable) {
         targetInteractable = interactable
-        // Sync stage with solved state if returning to already-solved puzzle
-        if (interactable.solved) stage = 2
-
-        feedbackLabel.text = ""
+        feedbackLabel.text = "" // Clears feedback so it doesn't show up if the user quickly closes and open the dialog after getting it incorrect
         updateUI()
 
         val ownerBounds = owner.frame.bounds

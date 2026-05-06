@@ -1,17 +1,24 @@
 - Fix puzzlewindow docs
 - Star map constellation sketch
 
-- Text change on puzzle completion
 
 - change cell descriptions and most others
-- make sure visited works and document it
+
 
 - Update docs eg README
 
 - add JLabel to tell user they picked up an item
 
-- Tell user whats happening reactor
-- Change reactor graphics on state change
-
 
 - CHANGE FLAVOUR TEXT AFTER PUZZLES ARE SOLVED
+
+- Move checking for examinelist interactions in the App class
+
+- reset reactor on reset button
+
+- scream at the user if they get the reactor wrong
+
+if i have time
+
+- Move set up interactables and rooms into seperate files
+if i do then add external files back to readme

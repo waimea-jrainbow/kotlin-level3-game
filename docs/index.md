@@ -1,6 +1,6 @@
-# PROJECT NAME HERE
+# Space escape
 
-by YOUR NAME HERE
+by Jaxon Rainbow
 
 ---
 
