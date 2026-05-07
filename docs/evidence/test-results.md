@@ -210,7 +210,7 @@ The examine description also doesn't disappear I will fix this in clean up at th
 
 ---
 
-## Code entry - too few digits - BOUNDARY
+## Code entry - too few digits - BOUNDThe feedback label should display "Correct" in green, the dialog should close after approximately 900ms, the Panel interactable's solved property should be set to true, and the exit button to the Guard Station should now become visible.ARY
 
 Open a code entry puzzle and press OK after entering fewer than the required three digits to verify the puzzle rejects an incomplete code.
 
@@ -250,7 +250,7 @@ Opened the Exhaust & intake levers puzzle and pressed only the Exhaust (E) butto
 
 ### Test Result
 
-![boundary-lever.gif](screenshots/testResults/boundary-lever.gif)
+![boundary-lever.gif](screenshots/testResults/boundaryLever.gif)
 
 ---
 
