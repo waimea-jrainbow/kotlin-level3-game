@@ -14,21 +14,21 @@ Selected the "Bunk" interactable in Cell 01. Valid data — a standard non-puzzl
 
 ### Test Result
 
-![examine-items.png](screenshots/examine-items.png)
+![examineItems.gif](screenshots/testResults/examineItems.gif)
 
 ---
 
-## Move between rooms
+## Move between rooms - VALID
 
 Click an exit button to move to an adjacent room and verify the room description, examine list, and exit buttons all update correctly.
 
 ### Test Data Used
 
-Solved the Panel puzzle in Cell 01 first, then clicked the "GUARD STATION" exit button. Valid data — the Guard Station is a defined exit of Cell 01 and the puzzle gating condition was met.
+Solved the Panel puzzle in Cell 01 first, then clicked the "GUARD STATION" exit button. Valid data. The Guard Station is a defined exit of Cell 01 and the puzzle gating condition was met.
 
 ### Test Result
 
-![move-rooms.png](screenshots/move-rooms.png)
+![moveRooms.gif](screenshots/testResults/moveRooms.gif)
 
 ---
 
@@ -38,25 +38,25 @@ Attempt to click an exit button while there is an unsolved puzzle in the current
 
 ### Test Data Used
 
-In Cell 01, with the Panel puzzle unsolved, attempted to click the exit button to the Guard Station. Invalid data — the puzzle gating condition had not been met.
+In Cell 01, with the Panel puzzle unsolved, attempted to click the exit button to the Guard Station. 
 
 ### Test Result
 
-![move-blocked.png](screenshots/move-blocked.png)
+![moveBlocked.gif](screenshots/testResults/moveBlocked.gif)
 
 ---
 
-## Complete first puzzle
+## Complete first puzzle - VALID
 
 Enter the correct three-digit code into the Panel puzzle in Cell 01 to verify the puzzle is marked as solved and movement is unlocked.
 
 ### Test Data Used
 
-Entered code "312" into the Panel puzzle. Valid data — derived from the Bunk clue ("3 BRIGHT, 1 DIM, 2 GONE") matching the vent lights.
+Entered code "312" into the Panel puzzle. Valid data derived from the Bunk clue ("3 BRIGHT, 1 DIM, 2 GONE") matching the vent lights.
 
 ### Test Result
 
-![puzzle1-correct.png](screenshots/puzzle1-correct.png)
+![puzzle1Testing.gif](screenshots/testResults/puzzle1Testing.gif)
 
 ---
 
@@ -70,11 +70,11 @@ Entered code "111" into the Panel puzzle. Invalid data — does not match the co
 
 ### Test Result
 
-![puzzle1-incorrect.png](screenshots/puzzle1-incorrect.png)
+![puzzle1Testing.gif](screenshots/testResults/puzzle1Testing.gif)
 
 ---
 
-## Get second puzzle incorrect and then correct
+## Get second puzzle incorrect and then correct - INVALID and VALID
 
 Enter a wrong code then the correct code into the Console puzzle in the Guard Station to verify both outcomes.
 
@@ -84,13 +84,11 @@ First entered "111" as invalid data, then entered "365" as valid data. The corre
 
 ### Test Result
 
-![puzzle2-incorrect.png](screenshots/puzzle2-incorrect.png)
-
-![puzzle2-correct.png](screenshots/puzzle2-correct.png)
+![puzzle2Testing.gif](screenshots/testResults/puzzle2Testing.gif)
 
 ---
 
-## Collect ID card from desk in second room
+## Collect ID card from desk in second room - VALID
 
 Select the Desk interactable in the Guard Station to verify the ID card is added to the inventory.
 
@@ -100,11 +98,11 @@ Navigated to the Guard Station and selected "Desk" from the examine list. Valid 
 
 ### Test Result
 
-![collect-id.png](screenshots/collect-id.png)
+![collectId.gif](screenshots/testResults/collectId.gif)
 
 ---
 
-## Collect items from cargo bay
+## Collect items from cargo bay - VALID
 
 Select Crate 2 and Crate 3 in the Cargo Bay to verify the medkit and laser cutter are added to the inventory.
 
@@ -114,11 +112,11 @@ Navigated to the Cargo Bay and selected "Crate 2" then "Crate 3". Valid data —
 
 ### Test Result
 
-![collect-cargo.png](screenshots/collect-cargo.png)
+![collectCargo.gif](screenshots/testResults/collectCargo.gif)
 
 ---
 
-## Get reactor puzzle incorrect and then correct
+## Get reactor puzzle incorrect and then correct - INVALID and VALID
 
 Press the levers in the wrong order then reset and press them in the correct order to verify both outcomes.
 
@@ -128,23 +126,25 @@ First pressed Intake (I) then Exhaust (E) as invalid data, then reset and presse
 
 ### Test Result
 
-![reactor-incorrect.png](screenshots/reactor-incorrect.png)
+![puzzleReactorTesting.gif](screenshots/testResults/puzzleReactorTesting.gif)
 
-![reactor-correct.png](screenshots/reactor-correct.png)
+Lever feedback labels don't always change. Fixed by wrapping the code to reset the labels in an if statement checking if the code entered so far is empty
+
+![puzzleReactorTestingFixed.gif](screenshots/testResults/puzzleReactorTestingFixed.gif)
 
 ---
 
-## Attempt override puzzle with no items
+## Attempt override puzzle with no items - INVALID
 
 Open the Override Panel puzzle with no relevant items in the inventory and attempt to cut the panel open.
 
 ### Test Data Used
 
-Navigated to the Airlock without collecting the laser cutter or ID card and clicked "Cut panel open". Invalid data — the required item is absent.
+Navigated to the Airlock without collecting the laser cutter or ID card and clicked "Cut panel open". 
 
 ### Test Result
 
-![override-no-items.png](screenshots/override-no-items.png)
+![overrideNoItems.gif](screenshots/testResults/overrideNoItems.gif)
 
 ---
 
@@ -154,11 +154,11 @@ Open the Override Panel puzzle with only the laser cutter collected, cut the pan
 
 ### Test Data Used
 
-Collected the laser cutter from Crate 3 but not the ID card from the Desk. Clicked "Cut panel open" (valid) then "Use ID card" (invalid — ID card absent).
+Collected the laser cutter from Crate 3 but not the ID card from the Desk. Clicked "Cut panel open" (valid) then "Use ID card" (invalid as ID card absent).
 
 ### Test Result
 
-![override-cutter-only.png](screenshots/override-cutter-only.png)
+![overrideCutterOnly.gif](screenshots/testResults/overrideCutterOnly.gif)
 
 ---
 
@@ -168,11 +168,11 @@ Open the Override Panel puzzle with only the ID card collected and attempt to cu
 
 ### Test Data Used
 
-Collected the ID card from the Desk but not the laser cutter from Crate 3. Clicked "Cut panel open". Invalid data — the laser cutter is absent.
+Collected the ID card from the Desk but not the laser cutter from Crate 3. Clicked "Cut panel open".
 
 ### Test Result
 
-![override-id-only.png](screenshots/override-id-only.png)
+![overrideIdOnly.gif](screenshots/testResults/overrideIdOnly.gif)
 
 ---
 
@@ -186,7 +186,7 @@ Collected the laser cutter from Crate 3 and the ID card from the Desk, then clic
 
 ### Test Result
 
-![override-both-items.png](screenshots/override-both-items.png)
+![overrideBothItems.gif](screenshots/testResults/overrideBothItems.gif)
 
 ---
 
@@ -200,7 +200,13 @@ Completed all puzzles and collected both the ID card and laser cutter, then clic
 
 ### Test Result
 
-![escape.png](screenshots/escape.png)
+![escape.gif](screenshots/testResults/escape.gif)
+
+Escape test is cut off fixed with <html><wrap>
+
+![escapeFixed.png](screenshots/testResults/escapeFixed.png)
+
+The examine description also doesn't disappear I will fix this in clean up at the bottom of this page
 
 ---
 
@@ -210,11 +216,11 @@ Open a code entry puzzle and press OK after entering fewer than the required thr
 
 ### Test Data Used
 
-Opened the Panel puzzle in Cell 01, entered only two digits "3" and "1", then pressed OK. Boundary data — one step below the minimum valid input length of 3 digits.
+Opened the Panel puzzle in Cell 01, entered only two digits "3" and "1", then pressed OK.
 
 ### Test Result
 
-![boundary-too-few.png](screenshots/boundary-too-few.png)
+![puzzle1TooFew.gif](screenshots/testResults/puzzle1TooFew.gif)
 
 ---
 
@@ -224,11 +230,13 @@ Open a code entry puzzle and press OK after entering more than the required thre
 
 ### Test Data Used
 
-Opened the Panel puzzle in Cell 01, entered four digits "3", "1", "2", "1", then pressed OK. Boundary data — one step above the maximum valid input length of 3 digits.
+Opened the Panel puzzle in Cell 01, entered four digits "3", "1", "2", "1", then pressed OK.
 
 ### Test Result
 
-![boundary-too-many.png](screenshots/boundary-too-many.png)
+![puzzle1TooMany.gif](screenshots/testResults/puzzle1TooMany.gif)
+
+Puzzle does not solve if too many numbers are entered. Fixed by doing a length check on the entered code when handling button presses.
 
 ---
 
@@ -242,6 +250,9 @@ Opened the Exhaust & intake levers puzzle and pressed only the Exhaust (E) butto
 
 ### Test Result
 
-![boundary-lever.png](screenshots/boundary-lever.png)
+![boundary-lever.gif](screenshots/testResults/boundary-lever.gif)
 
 ---
+
+# Fixes and clean up 
+

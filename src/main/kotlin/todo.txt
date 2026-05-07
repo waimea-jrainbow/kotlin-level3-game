@@ -18,6 +18,8 @@
 
 - scream at the user if they get the reactor wrong
 
+- remove medkit
+
 if i have time
 
 - Move set up interactables and rooms into seperate files

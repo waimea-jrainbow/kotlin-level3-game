@@ -52,7 +52,6 @@ class Room(
 
     fun addExit(exit: Room) {
         exits.add(exit)
-
     }
 
     fun addInteractable(interactable: Interactable) {
@@ -192,7 +191,7 @@ class App {
         )
 
         val exit = Room(
-            "Salvage shuttle, escape", """The airlock door slowly grinds open and you step in. The door closes behind you and another opens and you climb inside of the salvage shuttle. 
+            "Salvage shuttle, escape", """<html><wrap>The airlock door slowly grinds open and you step in. The door closes behind you and another opens and you climb inside of the salvage shuttle. 
                    you power up its engines and make your escape.
                    
                    Congratulations you escaped!!!
@@ -757,11 +756,13 @@ class PuzzleWindowReactor(private val owner: MainWindow, private val app: App) {
         else {
             reactorStatus.text = "Unsafe"
             reactorStatus.foreground = Color.red
-            leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
-                                                      [OPEN]"""
-            leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
-                                                      [OPEN]"""
 
+            if (enteredCode.isEmpty()) {
+                leverFeedbackLabel1.text = """<html><wrap>INTAKE<br>
+                                              [OPEN]"""
+                leverFeedbackLabel2.text = """<html><wrap>EXHAUST<br>
+                                              [OPEN]"""
+            }
 
         }
     }
@@ -882,10 +883,12 @@ class PuzzleWindow(private val owner: MainWindow, private val app: App, private 
     /**
      * Function to handle input of a number
      */
-    private fun handleNumClick(number:Int) {
-        enteredCode.add(number)
-        println(enteredCode.toString())
-        updateUI()
+    private fun handleNumClick(number: Int) {
+        if (enteredCode.size < code.length) {
+            enteredCode.add(number)
+            println(enteredCode.toString())
+            updateUI()
+        }
     }
 
     /**
