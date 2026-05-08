@@ -5,6 +5,23 @@ import javax.swing.*
 
 
 /**
+ * =====================================================================
+ * Programming Project for NCEA Level 3, Standard 91906
+ * ---------------------------------------------------------------------
+ * Project Name: Space escape
+ * Project Author: Jaxon Rainbow
+ * GitHub Repo: https://github.com/waimea-jrainbow/kotlin-level3-game
+ * ---------------------------------------------------------------------
+ * Notes:
+ * It might not be the most pretty, but it's mine.
+ * =====================================================================
+ */
+
+
+
+
+
+/**
  * Represents an object within a Room that the player can examine or interact with.
  *
  * Interactable may be an object with descriptions (e.g. a bunk or a door) or a puzzle
@@ -42,10 +59,12 @@ class Room(
     val name: String,
     val description: String,
     var interactables: MutableList<Interactable> = mutableListOf(),
-    var visited: Boolean = false
+
 
 
 ) {
+    var visited: Boolean = false
+
     // Making the exits list
     val exits: MutableList<Room> = mutableListOf()
 
@@ -96,7 +115,7 @@ class App {
     private val rooms: MutableList<Room> = mutableListOf()
     var currentInteractable: Interactable? = null
     var canMove = true
-    var inventory: MutableList<String> = mutableListOf("[_______]", "[______]", "[____________]")
+    var inventory: MutableList<String> = mutableListOf("[_______]", "[____________]")
 
     /**
      * Initializes the game by running all setup functions and setting the current room to thr room in the
@@ -125,7 +144,7 @@ class App {
                                    The walls hum with the low vibration of the station's engines. A metal bunk 
                                    is bolted to the left wall, its surface scratched with years of graffiti. 
                                    Above a ventilation panel on the far wall, six indicator lights are mounted 
-                                   in a row — three glow steady blue, one pulses weakly, two are dark. 
+                                   in a row  three glow steady blue, one pulses weakly, two are dark. 
                                    A faint smell of recycled air. Somewhere distant, a klaxon sounds and fades.
                                    There is a small maintenance panel set into the wall.
                                    </wrap></html>""",
@@ -134,10 +153,10 @@ class App {
         val guardRoom = Room(
             "GUARD STATION",
             """<html><wrap>
-                                   GUARD STATION — SECTOR 4 HUB
+                                   GUARD STATION  SECTOR 4 HUB
                                    ============================== <br>
                                    A cramped operations room. Banks of monitors line one wall, most dark or
-                                   showing static. A guard's workstation dominates the center — a physical
+                                   showing static. A guard's workstation dominates the center  a physical
                                    console with switches, levers, and a terminal that's still live, its screen
                                    casting pale green light. A star map is pinned to the far wall. Three heavy
                                    doors lead off in different directions, all sealed.</html></wrap>"""
@@ -146,11 +165,11 @@ class App {
         val cargoBay = Room(
             "CARGO BAY",
             """<html><wrap>      
-                                   CARGO BAY — STORAGE WING C
+                                   CARGO BAY  STORAGE WING C
                                    ============================ <br>
                                    A wide, low-ceilinged room lined with magnetic clamping racks. Crates of
                                    various sizes are locked to the walls and floor in neat rows, each labeled
-                                   with a stenciled symbol rather than text — station protocol, apparently.
+                                   with a stenciled symbol rather than text  station protocol, apparently.
                                    A manifest terminal on the near wall flickers with corrupted data. A tool
                                    locker stands open in the corner, mostly stripped bare. The room smells
                                    faintly of machine oil and something burnt."""
@@ -159,12 +178,12 @@ class App {
         val reactorRoom = Room(
             "REACTOR ROOM",
             """<html>
-                                   REACTOR CORE — RESTRICTED ZONE
+                                   REACTOR CORE  RESTRICTED ZONE
                                    ================================ <br>
                                    Heat hits you immediately. The room pulses with a deep, rhythmic vibration.
                                    A cylindrical reactor housing dominates the center, its casing streaked
-                                   with scorch marks. Two thick conduit pipes run from the base — one labeled
-                                   INTAKE, one labeled EXHAUST — each controlled by a large lever on the wall.
+                                   with scorch marks. Two thick conduit pipes run from the base  one labeled
+                                   INTAKE, one labeled EXHAUST  each controlled by a large lever on the wall.
                                    Both levers are currently in the OPEN position. A warning light strobes red.
                                    A large computer monitor flashes a warning symbol casting more red light into the room.
                                    <br>
@@ -176,7 +195,7 @@ class App {
         val airLock = Room(
             "AIR LOCK",
             """<html><wrap>
-                                   AIRLOCK — DOCKING RING 3
+                                   AIRLOCK  DOCKING RING 3
                                    ========================= <br>
                                    A heavy pressure door dominates the far wall, its surface scratched and
                                    dented from years of use. Beside it: a biometric scanner with a smashed screen, dark and
@@ -237,7 +256,7 @@ class App {
             "Bunk",
             """<html><wrap>The bunk is bolted solid - you're not pulling it free. But the surface is
                                       covered in scratches. One message stands out, carved deeper than the rest:
-                                      "THE STARS DON'T LIE — 3 BRIGHT, 1 DIM, 2 GONE."
+                                      "THE STARS DON'T LIE  3 BRIGHT, 1 DIM, 2 GONE."
                                       Someone was trying to leave a message for whoever came next."""
         )
         val ventLights = Interactable(
@@ -246,12 +265,12 @@ class App {
                                                                             Three steady, one dim, two dead."""
         )
         val cellDoor = Interactable(
-            "Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark — no power
+            "Cell Door", """<html><wrap>A heavy mag-locked security door. A keypad beside it is dark  no power
                                                                         running to it from this side. You're not getting out that way."""
         )
         val panel = Interactable(
             "Panel", """<html><wrap>A maintenance panel set into the wall beneath the lights. It has a small
-            3-digit keypad with a magnetic lock. If you could open this...""", true
+            9-digit keypad with a magnetic lock. If you could open this...""", true
         )
 
 
@@ -290,15 +309,11 @@ class App {
         val photo = Interactable("Photo","""<html><wrap>You flip it over. A guard in dress uniform, smiling with a family.
                                                                 You set it back down, face-up this time.""")
 
-        val doors = Interactable("Doors", """<html><wrap>Three reinforced security doors. Door A is marked REACTOR - AUTHORIZED
-                                                                             PERSONNEL ONLY. Door B is marked MEDICAL. Both are sealed. The corridor
-                                                                             to the cargo bay has no door just an open arch.""")
 
         rooms[1].addInteractable(console)
         rooms[1].addInteractable(starMap)
         rooms[1].addInteractable(photo)
         rooms[1].addInteractable(desk)
-        rooms[1].addInteractable(doors)
 
         //Cargo Bay setup
 
@@ -317,7 +332,7 @@ class App {
         val crate1 = Interactable("Crate 1","""<html><wrap>An open crate containing sealed ration packs. You aren't interested in food right now
                                                                          and besides you have no way to heat them up.""")
 
-        val crate2 = Interactable("Crate 2","""<html><wrap>An open crate containing medical supplies. You decide to take a medkit. Just in case""")
+        val crate2 = Interactable("Crate 2","""<html><wrap>An Sealed crate containing medical supplies.""")
 
         val crate3 = Interactable("Crate 3", """<html><wrap>An open crate containing a laser cutter. You decide to take it. Just in case.""")
 
@@ -327,8 +342,6 @@ class App {
         val crate5 = Interactable("Crate 5", """<html><wrap>A sealed crate. According to the manifest it contains a life raft. Why you need a life raft in space
                                                                             and at this point you can't be bothered to find out.""")
 
-        val crate6 = Interactable("Crate 6", """<html><wrap>An open crate. It contains canisters of Cool Coolant™. You decide to take a canister.
-                                                                            Just in case.""")
 
 
         rooms[2].addInteractable(manifest)
@@ -337,7 +350,6 @@ class App {
         rooms[2].addInteractable(crate3)
         rooms[2].addInteractable(crate4)
         rooms[2].addInteractable(crate5)
-        rooms[2].addInteractable(crate6)
 
         // Reactor setup
 
@@ -360,14 +372,17 @@ class App {
         rooms[3].addInteractable(computer)
         rooms[3].addInteractable(levers)
 
-        val airlockDoor = Interactable("Airlock door", """<html><wrap>blep""")
+        val airlockDoor = Interactable("Airlock door", """<html><wrap>A pressure-rated blast door, two inches of reinforced composite. The
+                                                                                          seal around the edge looks intact. There's a control panel inset at
+                                                                                          shoulder height, currently dark it needs the biometric scanner to
+                                                                                          authenticate first before it'll respond.""")
 
         val biometricScanner = Interactable("Biometric scanner", """<html><wrap>You tap the screen, it blazes to life for all of about a second 
                                                                                      before fizzling out and producing a few sparks.""")
 
         val overridePanel = Interactable("Override panel", """<html><wrap>A panel labelled OVERRIDE. 
-                                                                                              The edges are fused shut — someone welded this deliberately. 
-                                                                                              A laser cutter could get through that.""", true)
+                                                                                              The edges are fused shut someone welded this deliberately. 
+                                                                                              A laser cutter could get through.""", true)
 
         rooms[4].addInteractable(airlockDoor)
         rooms[4].addInteractable(biometricScanner)
@@ -410,12 +425,13 @@ class MainWindow(private val app: App) {
     private val exit1Button = JButton()
     private val exit2Button = JButton()
     private val exit3Button = JButton()
-    private val exit4Button = JButton()
     private val examinedInteractableDescLabel = JLabel()
 
     private var examineListLabel = JLabel("Select to examine")
     private val examineListModel = DefaultListModel<Interactable>()
     private val examineList = JList(examineListModel)
+
+    private val itemPickupLabel = JLabel()
 
     private val inventoryListLabel = JLabel("Inventory:")
     private val inventoryList = JLabel()
@@ -436,7 +452,6 @@ class MainWindow(private val app: App) {
         exit1Button.isVisible = false
         exit2Button.isVisible = false
         exit3Button.isVisible = false
-        exit4Button.isVisible = false
 
         updateUI()
     }
@@ -451,9 +466,9 @@ class MainWindow(private val app: App) {
         exit1Button.setBounds(30, 350, 100, 50)
         exit2Button.setBounds(150, 350, 100, 50)
         exit3Button.setBounds(270, 350, 100, 50)
-        exit4Button.setBounds(390, 350, 100, 50)
         examineListLabel.setBounds(350, 5, 150, 30)
-        examineList.setBounds(350, 35, 150, 290)
+        examineList.setBounds(350, 50, 150, 290)
+        itemPickupLabel.setBounds(350, 20, 150, 30)
         examinedInteractableDescLabel.setBounds(30, 420, 450, 160)
         inventoryListLabel.setBounds(550,5,150,30)
         inventoryList.setBounds(550, 25, 150, 60)
@@ -463,9 +478,9 @@ class MainWindow(private val app: App) {
         panel.add(exit1Button)
         panel.add(exit2Button)
         panel.add(exit3Button)
-        panel.add(exit4Button)
         panel.add(examineListLabel)
         panel.add(examineList)
+        panel.add(itemPickupLabel)
         panel.add(examinedInteractableDescLabel)
         panel.add(inventoryListLabel)
         panel.add(inventoryList)
@@ -483,7 +498,6 @@ class MainWindow(private val app: App) {
         exit1Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         exit2Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         exit3Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
-        exit4Button.font = Font(Font.SANS_SERIF, Font.BOLD, 8)
         examineListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
         examineList.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
         inventoryListLabel.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
@@ -491,7 +505,7 @@ class MainWindow(private val app: App) {
     }
 
     private fun setupWindow() {
-        frame.isResizable = true                         // Can't resize
+        frame.isResizable = false                       // Can't resize
         frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE  // Exit upon window close
         frame.contentPane = panel                           // Define the main content
         frame.pack()                                        // Size the window based on components
@@ -520,11 +534,15 @@ class MainWindow(private val app: App) {
 
                         "Console" -> puzzle2Window.show(selected)
 
-                        "Desk" -> app.inventory[0] = "[ID card]" // Add the relevant item to the inventory
+                        "Desk" -> {
+                            app.inventory[0] = "[ID card]" // Add the relevant item to the inventory
+                            showPickupMessage("You pocket the ID card")
+                        }
 
-                        "Crate 2" -> app.inventory[1] = "[Medkit]"
-
-                        "Crate 3" -> app.inventory[2] = "[Laser cutter]"
+                        "Crate 3" -> {
+                            app.inventory[2] = "[Laser cutter]"
+                            showPickupMessage("You grab the laser cutter")
+                        }
 
                         "Exhaust & intake levers" -> puzzleWindowReactor.show(selected)
 
@@ -558,7 +576,14 @@ class MainWindow(private val app: App) {
         println(app.currentRoom.name)
     }
 
-
+    private fun showPickupMessage(message: String) {
+        itemPickupLabel.text = message
+        val timer = Timer(3000) {
+            itemPickupLabel.text = ""
+        }
+        timer.isRepeats = false
+        timer.start()
+    }
 
     fun updateUI() {
         app.canMove = true

@@ -1,24 +1,9 @@
-- Fix puzzlewindow docs
-- Star map constellation sketch
-
-
-- change cell descriptions and most others
-
-
-- Update docs eg README
 
 - add JLabel to tell user they picked up an item
-
 
 - CHANGE FLAVOUR TEXT AFTER PUZZLES ARE SOLVED
 
 - Move checking for examinelist interactions in the App class
-
-- reset reactor on reset button
-
-- scream at the user if they get the reactor wrong
-
-- remove medkit
 
 if i have time
 

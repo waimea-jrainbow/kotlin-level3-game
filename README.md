@@ -25,12 +25,9 @@ The project is written in the [Kotlin](https://kotlinlang.org) programming langu
 *complex programming techniques**:
 
 - Programming a graphical user interface (GUI)
-
-[//]: # (- Reading from, or writing to, files)
 - Object-oriented programming (OOP) classes and objects
 - Self-defined types
 - Using non-core API, library or framework
-- Using complex data structures (e.g. stacks, queues, trees)
 
 
 

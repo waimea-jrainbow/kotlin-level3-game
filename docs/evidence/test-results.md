@@ -196,7 +196,7 @@ With all puzzles solved and both items collected, click the exit from the Airloc
 
 ### Test Data Used
 
-Completed all puzzles and collected both the ID card and laser cutter, then clicked the exit button leading to the "Salvage shuttle, escape" room. Valid data — represents the successful completion state.
+Completed all puzzles and collected both the ID card and laser cutter, then clicked the exit button leading to the "Salvage shuttle, escape" room. Valid data represents the successful completion state.
 
 ### Test Result
 
@@ -205,8 +205,6 @@ Completed all puzzles and collected both the ID card and laser cutter, then clic
 Escape test is cut off fixed with <html><wrap>
 
 ![escapeFixed.png](screenshots/testResults/escapeFixed.png)
-
-The examine description also doesn't disappear I will fix this in clean up at the bottom of this page
 
 ---
 
@@ -246,7 +244,7 @@ Open the lever puzzle and press only one lever to verify that the puzzle does no
 
 ### Test Data Used
 
-Opened the Exhaust & intake levers puzzle and pressed only the Exhaust (E) button without pressing a second lever. Boundary data — one press below the minimum valid sequence length of 2.
+Opened the Exhaust & intake levers puzzle and pressed only the Exhaust (E) button without pressing a second lever. Boundary data one press below the minimum valid sequence length of 2.
 
 ### Test Result
 
@@ -254,5 +252,5 @@ Opened the Exhaust & intake levers puzzle and pressed only the Exhaust (E) butto
 
 ---
 
-# Fixes and clean up 
+
 
